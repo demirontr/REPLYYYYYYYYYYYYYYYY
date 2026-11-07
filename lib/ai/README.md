@@ -1,7 +1,7 @@
 # AI agents (Claude 3)
 
 All Gemini calls go through `lib/ai/llm.ts`: REST + `fetch`, JSON response schema, model from `GEMINI_MODEL`
-(default `gemini-2.5-flash`), one retry with the validation error fed back, and every call (input, output,
+(default `gemini-3.8-flash`), one retry with the validation error fed back, and every call (input, output,
 success, time) logged to the server console and the `ai_logs` table. Every agent has a rule-based fallback,
 so the demo works without Gemini or internet quota, and the UI says when the fallback was used.
 

@@ -4,7 +4,7 @@
 
 **Problem (15 s).** Analysis I is where many first-year engineers fall behind. You practise for one big exam, feedback comes weeks too late, and when you finally ask a chatbot, it just gives you the answer. You learn to copy, not to think.
 
-**Idea (30 s).** AI on Campus turns the course into ten minutes a day.
+**Idea (30 s).** UniR turns the course into ten minutes a day.
 - Every morning there is one short test, easy to hard. XP and a campus leaderboard make it a habit.
 - Meet a classmate in the library and you can challenge them to a five-question duel on the spot.
 - Behind it, AI agents look at *how* you answer: which topics, how fast, which mistakes. Get one wrong and the agent won't hand you the solution. It explains the error in *your* reasoning and builds a retry test with new questions on the same idea.

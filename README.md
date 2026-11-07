@@ -1,6 +1,6 @@
-# AI on Campus
+# UniR
 
-**Reply Student Tech Clash 2026 · "AI on Campus"**
+**Reply Student Tech Clash 2026 · challenge "AI on Campus"**
 
 University students practise a course a little every day, compete with classmates they actually meet on campus, and get AI guidance that points them to the next step without thinking for them.
 
@@ -29,7 +29,7 @@ First-year analysis courses are where many engineering students fall behind. Pra
 
 Full architecture (inputs, knowledge, actions, outputs per agent): **[lib/ai/README.md](lib/ai/README.md)**
 
-- **Model:** Google Gemini via REST (`lib/ai/llm.ts`). The model name comes from `GEMINI_MODEL` (default `gemini-2.5-flash`).
+- **Model:** Google Gemini via REST (`lib/ai/llm.ts`). The model name comes from `GEMINI_MODEL` (default `gemini-3.8-flash`).
 - **Responses:** Every call uses a JSON response schema. Output is validated in code, with one retry that feeds the validation error back.
 - **Logging:** Every call is logged to the server console and to the `ai_logs` table, as evidence and for debugging.
 - **Code decides, Gemini writes:** Numbers and decisions are made in code. Gemini only writes text or picks ids from lists the code supplies, and the code checks every id.
