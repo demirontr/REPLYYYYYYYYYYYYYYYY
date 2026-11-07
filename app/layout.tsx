@@ -8,6 +8,7 @@ import "./globals.css";
 import { getCurrentUser } from "@/lib/session";
 import { supabaseAdmin } from "@/lib/supabase";
 import { SwitchUser } from "@/components/SwitchUser";
+import { DEMO_MODE } from "@/lib/demo";
 import { NavLinks } from "@/components/NavLinks";
 import { NotificationBell } from "@/app/notifications/Bell";
 import { unreadCount } from "@/app/notifications/data";
@@ -47,7 +48,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <div className="ml-auto flex items-center gap-3">
               <span className="font-math text-lg"><span className="marker">{me.xp}</span> XP</span>
               <NotificationBell userId={me.id} initial={unread} />
-              <SwitchUser users={users ?? []} currentId={me.id} />
+              <SwitchUser users={users ?? []} currentId={me.id} hideOnTests={DEMO_MODE} />
             </div>
           </div>
         </header>
