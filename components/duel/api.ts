@@ -19,3 +19,9 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
 }
 
 export const fmtSeconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
+
+/**
+ * Polling fallback interval. Supabase Realtime websockets dropped on the event network,
+ * so the pages rely on polling; 1.5 s keeps duels and live rounds responsive.
+ */
+export const POLL_MS = 1500;

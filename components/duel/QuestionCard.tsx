@@ -15,6 +15,9 @@ export type CardQuestion = {
 
 export type AnswerFeedback = { isCorrect: boolean; correctIndex: number; explanation: string | null };
 
+/** After a timeout, the next question opens by itself after this delay (jury demo flow). */
+const AUTO_NEXT_MS = 2000;
+
 type Props = {
   question: CardQuestion;
   index: number;
@@ -73,6 +76,19 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
     return () => clearInterval(t);
   }, [feedback, error, start, limitMs]);
 
+  // After "Time is up", move on by itself after AUTO_NEXT_MS (the button stays for impatient players).
+  // onNext is read through a ref so parent re-renders (polling) do not restart the countdown.
+  const timedOut = Boolean(feedback) && chosen === null;
+  const onNextRef = useRef(onNext);
+  useEffect(() => {
+    onNextRef.current = onNext;
+  });
+  useEffect(() => {
+    if (!timedOut || !onNextRef.current) return;
+    const t = setTimeout(() => onNextRef.current?.(), AUTO_NEXT_MS);
+    return () => clearTimeout(t);
+  }, [timedOut]);
+
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between text-sm text-graphite/60">
@@ -108,14 +124,18 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
               className={`rounded-md border-2 px-4 py-3 text-left transition ${cls}`}
             >
               <span className="mr-2 font-semibold text-graphite/40">{String.fromCharCode(65 + i)}</span>
-              {c}
+              <span className="font-math text-lg">{c}</span>
             </button>
           );
         })}
       </div>
 
       <div className="mt-4 min-h-6 text-sm">
-        {!feedback && !error && <span className="text-graphite/60">{Math.ceil(remaining / 1000)} s left</span>}
+        {!feedback && !error && (
+          <span className="text-graphite/60">
+            <span className="font-math">{Math.ceil(remaining / 1000)}</span> s left
+          </span>
+        )}
         {error && <span className="text-pen">{error}</span>}
         {feedback && (
           <div className="space-y-2">
@@ -124,9 +144,12 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
             </p>
             {feedback.explanation && <p className="text-graphite/70">{feedback.explanation}</p>}
             {onNext && (
-              <Button type="button" onClick={onNext}>
-                {index + 1 < total ? 'Next question' : 'See result'}
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button type="button" onClick={onNext}>
+                  {index + 1 < total ? 'Next question' : 'See result'}
+                </Button>
+                {timedOut && <span className="text-graphite/60">Moving on in 2 s…</span>}
+              </div>
             )}
           </div>
         )}

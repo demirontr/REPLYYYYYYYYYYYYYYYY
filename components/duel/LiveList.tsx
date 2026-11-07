@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { PageTitle } from '@/components/ui';
-import { api } from './api';
+import { api, POLL_MS } from './api';
 
 type Item = { id: number; title: string; status: 'scheduled' | 'live' | 'finished'; startsAt: string; questions: number };
 
@@ -36,7 +36,7 @@ export function LiveList() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(load, 5000);
+    const t = setInterval(load, POLL_MS * 2);
     return () => clearInterval(t);
   }, [load]);
 

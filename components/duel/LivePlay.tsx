@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { subscribeTournament } from '@/lib/realtime';
 import { QUESTION_TIME_LIMIT_MS } from '@/lib/duel';
-import { api, fmtSeconds } from './api';
+import { api, fmtSeconds, POLL_MS } from './api';
 import { QuestionCard, type AnswerFeedback, type CardQuestion } from './QuestionCard';
 
 type State = {
@@ -51,7 +51,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       onTournament: () => void load(),
       onEntry: () => void load(),
     });
-    const t = setInterval(load, 2500);
+    const t = setInterval(load, POLL_MS);
     return () => {
       clearInterval(t);
       unsub();
@@ -91,7 +91,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
         </div>
         {s.status === 'live' && (
           <span className="rounded-full bg-pen/10 px-3 py-1 text-sm font-medium text-pen">
-            ● LIVE · {s.index + 1}/{s.total}
+            ● LIVE · <span className="font-math">{s.index + 1}/{s.total}</span>
           </span>
         )}
       </div>
@@ -172,7 +172,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
                 {e.userId === s.meId && ' (you)'}
               </span>
               <span className="text-sm text-graphite/70">
-                {e.correct} correct · {fmtSeconds(e.timeMs)}
+                <span className="font-math">{e.correct}</span> correct · <span className="font-math">{fmtSeconds(e.timeMs)}</span>
               </span>
             </li>
           ))}

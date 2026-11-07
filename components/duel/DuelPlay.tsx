@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { joinDuelRoom, subscribeDuel, type DuelProgress } from '@/lib/realtime';
 import { QUESTION_TIME_LIMIT_MS } from '@/lib/duel';
-import { api, fmtSeconds } from './api';
+import { api, fmtSeconds, POLL_MS } from './api';
 import { QuestionCard, type AnswerFeedback, type CardQuestion } from './QuestionCard';
 
 type State = {
@@ -58,7 +58,7 @@ export function DuelPlay({ duelId }: { duelId: number }) {
       setOpponentAnswered((n) => Math.max(n, p.answered));
     });
     // Fallback polling in case realtime is not available.
-    const t = setInterval(load, 3000);
+    const t = setInterval(load, POLL_MS);
     return () => {
       clearInterval(t);
       unsubRow();
@@ -130,11 +130,11 @@ function Player({ name, elo, answered, total }: { name: string; elo: number; ans
   return (
     <div className="rounded-md border border-grid bg-white p-3">
       <p className="truncate font-medium text-graphite">{name}</p>
-      <p className="mb-2 text-xs text-graphite/60">Elo {elo}</p>
+      <p className="mb-2 text-xs text-graphite/60">Elo <span className="font-math">{elo}</span></p>
       <div className="h-2 overflow-hidden rounded-full bg-paper">
         <div className="h-full bg-indigo-500 transition-all" style={{ width: `${(answered / total) * 100}%` }} />
       </div>
-      <p className="mt-1 text-xs text-graphite/60">{answered} / {total}</p>
+      <p className="mt-1 font-math text-xs text-graphite/60">{answered} / {total}</p>
     </div>
   );
 }
@@ -175,7 +175,7 @@ function Score({ label, correct, timeMs, total }: { label: string; correct: numb
     <div className="rounded-md bg-paper p-3">
       <p className="truncate font-medium text-graphite">{label}</p>
       <p className="font-math text-3xl text-graphite"><span className="marker">{correct}</span> / {total}</p>
-      <p className="text-graphite/60">{fmtSeconds(timeMs)}</p>
+      <p className="font-math text-graphite/60">{fmtSeconds(timeMs)}</p>
     </div>
   );
 }

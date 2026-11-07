@@ -8,7 +8,7 @@ import { POLITO_CAMPUS, simulateNear, startLocationWatch, LOCATION_PUSH_INTERVAL
 import { subscribeInvites } from '@/lib/realtime';
 import { INVITE_TTL_MS, type DuelSize } from '@/lib/duel';
 import { PageTitle } from '@/components/ui';
-import { api } from './api';
+import { api, POLL_MS } from './api';
 
 type Lobby = {
   me: { id: number; name: string };
@@ -66,7 +66,7 @@ export function DuelLobby({ meId }: { meId: number }) {
   // Poll (fallback) + realtime invitations (instant).
   useEffect(() => {
     void refresh();
-    const t = setInterval(refresh, 4000);
+    const t = setInterval(refresh, POLL_MS);
     const unsub = subscribeInvites(supabase, meId, () => void refresh());
     const clock = setInterval(() => tick((n) => n + 1), 1000);
     return () => {
@@ -160,7 +160,7 @@ export function DuelLobby({ meId }: { meId: number }) {
       {lobby?.incoming.map((inv) => (
         <div key={inv.id} className="flex items-center justify-between rounded-md border border-tick/50 bg-tick/5 px-4 py-3">
           <span className="text-tick">
-            <strong>{inv.from}</strong> challenged you to a {inv.size}-question duel · {secondsLeft(inv.createdAt)} s
+            <strong>{inv.from}</strong> challenged you to a {inv.size}-question duel · <span className="font-math">{secondsLeft(inv.createdAt)}</span> s
           </span>
           <div className="flex gap-2">
             <button type="button" onClick={() => respond(inv.id, true)} className="rounded-md bg-tick px-3 py-1.5 text-sm font-medium text-white hover:bg-tick/90">
@@ -175,7 +175,7 @@ export function DuelLobby({ meId }: { meId: number }) {
 
       {pendingOutgoing && (
         <div className="rounded-md border border-grid bg-paper px-4 py-3 text-graphite/80">
-          Waiting for <strong>{pendingOutgoing.to}</strong> to accept… {secondsLeft(pendingOutgoing.createdAt)} s
+          Waiting for <strong>{pendingOutgoing.to}</strong> to accept… <span className="font-math">{secondsLeft(pendingOutgoing.createdAt)}</span> s
         </div>
       )}
 
@@ -236,7 +236,7 @@ export function DuelLobby({ meId }: { meId: number }) {
                 <div>
                   <p className="font-medium text-graphite">{n.name}</p>
                   <p className="text-xs text-graphite/60">
-                    {n.distanceM} m away · Elo {n.elo} · {n.xp} XP
+                    <span className="font-math">{n.distanceM}</span> m away · Elo <span className="font-math">{n.elo}</span> · <span className="font-math">{n.xp}</span> XP
                   </p>
                 </div>
                 <button
