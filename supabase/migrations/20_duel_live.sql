@@ -5,6 +5,12 @@
 -- schema.sql already adds duels/tournaments/tournament_entries/notifications to realtime;
 -- the block at the bottom is idempotent and additionally adds `locations`.
 
+-- ---------- answers: allow "time ran out" ----------
+-- In duels and live competitions a player can run out of time without choosing.
+-- Such answers are stored with chosen_index = null and is_correct = false.
+-- The existing check (chosen_index between 0 and 3) still applies to non-null values.
+alter table answers alter column chosen_index drop not null;
+
 -- ---------- Extra columns (additive only) ----------
 -- Final scores, Elo change and bonus, so the result screen does not have to recompute them.
 alter table duels add column if not exists result jsonb;
@@ -24,7 +30,7 @@ $$;
 create index if not exists duels_opponent_status_idx on duels (opponent_id, status);
 create index if not exists duels_challenger_status_idx on duels (challenger_id, status);
 create index if not exists locations_updated_idx on locations (updated_at);
-create unique index if not exists tournament_entries_pk on tournament_entries (tournament_id, user_id);
+-- tournament_entries already has primary key (tournament_id, user_id) in schema.sql.
 
 -- ---------- Nearby users (Haversine, metres) ----------
 -- Only users who turned sharing on and pushed a position in the last 2 minutes.

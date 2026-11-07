@@ -129,8 +129,8 @@ export function DuelLobby({ meId }: { meId: number }) {
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Campus Duel</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-zinc-900">Campus Duel</h1>
+        <p className="text-zinc-600">
           Meet another student in person, then race through 5 or 10 Analysis I questions. Most correct answers wins;
           on a tie, the faster player wins.
         </p>
@@ -142,13 +142,13 @@ export function DuelLobby({ meId }: { meId: number }) {
 
       {/* Automatic proximity prompts */}
       {prompts.map((p) => (
-        <div key={p.id} className="flex items-center justify-between rounded-xl border border-sky-300 bg-sky-50 px-4 py-3">
-          <span className="font-medium text-sky-900">{p.name} is nearby — challenge?</span>
+        <div key={p.id} className="flex items-center justify-between rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3">
+          <span className="font-medium text-indigo-900">{p.name} is nearby — challenge?</span>
           <div className="flex gap-2">
-            <button type="button" onClick={() => challenge(p.id)} className="rounded-lg bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700">
+            <button type="button" onClick={() => challenge(p.id)} className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
               Challenge ({size})
             </button>
-            <button type="button" onClick={() => setPrompts((x) => x.filter((y) => y.id !== p.id))} className="rounded-lg px-3 py-1.5 text-sm text-sky-800 hover:bg-sky-100">
+            <button type="button" onClick={() => setPrompts((x) => x.filter((y) => y.id !== p.id))} className="rounded-lg px-3 py-1.5 text-sm text-indigo-800 hover:bg-indigo-100">
               Later
             </button>
           </div>
@@ -173,24 +173,24 @@ export function DuelLobby({ meId }: { meId: number }) {
       ))}
 
       {pendingOutgoing && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-zinc-700">
           Waiting for <strong>{pendingOutgoing.to}</strong> to accept… {secondsLeft(pendingOutgoing.createdAt)} s
         </div>
       )}
 
       {/* Location sharing */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-1 font-semibold text-slate-900">Your location</h2>
-        <p className="mb-3 text-sm text-slate-600">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <h2 className="mb-1 font-semibold text-zinc-900">Your location</h2>
+        <p className="mb-3 text-sm text-zinc-600">
           Shared only while this page is open and only to find players within 50 m. Turn it off any time.
         </p>
         <div className="flex flex-wrap gap-2">
           {!sharing ? (
             <>
-              <button type="button" onClick={() => setMode('gps')} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
+              <button type="button" onClick={() => setMode('gps')} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700">
                 Share my location
               </button>
-              <button type="button" onClick={() => setMode('demo')} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50">
+              <button type="button" onClick={() => setMode('demo')} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50">
                 Simulate location (demo)
               </button>
             </>
@@ -199,7 +199,7 @@ export function DuelLobby({ meId }: { meId: number }) {
               <span className="rounded-lg bg-emerald-100 px-3 py-2 text-sm text-emerald-800">
                 {mode === 'demo' ? 'Demo: placed at PoliTo main campus' : 'Sharing GPS location'}
               </span>
-              <button type="button" onClick={stopSharing} className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-800 hover:bg-slate-50">
+              <button type="button" onClick={stopSharing} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-800 hover:bg-zinc-50">
                 Stop sharing
               </button>
             </>
@@ -208,33 +208,33 @@ export function DuelLobby({ meId }: { meId: number }) {
       </section>
 
       {/* Nearby players */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-900">Nearby players</h2>
-          <div className="flex rounded-lg border border-slate-300 p-0.5 text-sm">
+          <h2 className="font-semibold text-zinc-900">Nearby players</h2>
+          <div className="flex rounded-lg border border-zinc-300 p-0.5 text-sm">
             {([5, 10] as DuelSize[]).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSize(s)}
-                className={`rounded-md px-3 py-1 ${size === s ? 'bg-slate-900 text-white' : 'text-slate-700'}`}
+                className={`rounded-md px-3 py-1 ${size === s ? 'bg-zinc-900 text-white' : 'text-zinc-700'}`}
               >
                 {s} questions
               </button>
             ))}
           </div>
         </div>
-        {!sharing && <p className="text-sm text-slate-500">Share your location to see who is around.</p>}
+        {!sharing && <p className="text-sm text-zinc-500">Share your location to see who is around.</p>}
         {sharing && lobby && lobby.nearby.length === 0 && (
-          <p className="text-sm text-slate-500">Nobody within 50 m yet. Open this page in a second tab as another demo student and use demo mode.</p>
+          <p className="text-sm text-zinc-500">Nobody within 50 m yet. Open this page in a second tab as another demo student and use demo mode.</p>
         )}
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-zinc-100">
           {sharing &&
             lobby?.nearby.map((n) => (
               <li key={n.id} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="font-medium text-slate-900">{n.name}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-medium text-zinc-900">{n.name}</p>
+                  <p className="text-xs text-zinc-500">
                     {n.distanceM} m away · Elo {n.elo} · {n.xp} XP
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export function DuelLobby({ meId }: { meId: number }) {
                   type="button"
                   disabled={Boolean(pendingOutgoing)}
                   onClick={() => challenge(n.id)}
-                  className="rounded-lg bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-50"
+                  className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
                 >
                   Challenge
                 </button>

@@ -3,7 +3,7 @@
 // Depends on Claude 1's skeleton: supabaseAdmin(), getCurrentUser(), awardXp() (see issue #1).
 
 import { supabaseAdmin } from '@/lib/supabase';
-import { getCurrentUser } from '@/lib/session';
+import { getCurrentUser, todayRome } from '@/lib/session';
 import { awardXp } from '@/lib/xp';
 import {
   decideWinner,
@@ -133,7 +133,7 @@ export async function getOrCreateSession(
         course_id: courseId,
         kind,
         ref_id: refId,
-        date: new Date().toISOString().slice(0, 10),
+        date: todayRome(),
         started_at: new Date().toISOString(),
         question_ids: questionIds,
         total_xp: 0,
