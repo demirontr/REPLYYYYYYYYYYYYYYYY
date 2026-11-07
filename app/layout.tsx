@@ -9,6 +9,8 @@ import { getCurrentUser } from "@/lib/session";
 import { supabaseAdmin } from "@/lib/supabase";
 import { SwitchUser } from "@/components/SwitchUser";
 import { NavLinks } from "@/components/NavLinks";
+import { NotificationBell } from "@/app/notifications/Bell";
+import { unreadCount } from "@/app/notifications/data";
 
 export const metadata: Metadata = {
   title: "AI on Campus",
@@ -22,13 +24,17 @@ const NAV = [
   ["/duel", "Duel"],
   ["/live", "Live"],
   ["/careers", "Careers"],
+  ["/study-plan", "Study plan"],
   ["/companies", "Companies"],
-  ["/notifications", "Notifications"],
+  ["/settings/privacy", "Privacy"],
 ] as const;
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const me = await getCurrentUser(); // reads cookies first, which keeps every route dynamic
-  const { data: users } = await supabaseAdmin().from("users").select("id,name,role").order("id");
+  const [{ data: users }, unread] = await Promise.all([
+    supabaseAdmin().from("users").select("id,name,role").order("id"),
+    unreadCount(me.id),
+  ]);
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
@@ -40,6 +46,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <NavLinks items={NAV} />
             <div className="ml-auto flex items-center gap-3">
               <span className="font-math text-lg"><span className="marker">{me.xp}</span> XP</span>
+              <NotificationBell userId={me.id} initial={unread} />
               <SwitchUser users={users ?? []} currentId={me.id} />
             </div>
           </div>

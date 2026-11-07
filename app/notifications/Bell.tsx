@@ -11,7 +11,9 @@ import { supabaseBrowser } from "@/lib/supabase";
 
 export function NotificationBell({ userId, initial }: { userId: number; initial: number }) {
   const [count, setCount] = useState(initial);
-  useEffect(() => setCount(initial), [initial]);
+  const [seen, setSeen] = useState(initial);
+  if (seen !== initial) { setSeen(initial); setCount(initial); } // new server count after navigation
+
   useEffect(() => {
     const channel = supabaseBrowser()
       .channel(`notifications:${userId}`)
@@ -23,7 +25,7 @@ export function NotificationBell({ userId, initial }: { userId: number; initial:
   return (
     <Link href="/notifications" className="relative px-1 text-lg" aria-label={`Notifications: ${count} unread`}>
       🔔
-      {count > 0 && <span className="absolute -top-1 -right-2 rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white">{count}</span>}
+      {count > 0 && <span className="absolute -top-1 -right-2 rounded-full bg-pen px-1.5 text-[10px] font-bold text-white">{count}</span>}
     </Link>
   );
 }

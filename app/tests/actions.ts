@@ -6,6 +6,8 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { awardXp, xpForAnswer } from "@/lib/xp";
 import type { Difficulty, Question, TestSession } from "@/lib/types";
 import { wrongQuestionIds } from "./data";
+import { generateSimilarQuestions } from "@/lib/ai/similarQuestions";
+import { explainMistake } from "@/lib/ai/explainMistake";
 
 const ORDER: Difficulty[] = ["easy", "medium", "hard"];
 const DAILY_MIX: Record<Difficulty, number> = { easy: 3, medium: 4, hard: 3 };
@@ -50,13 +52,14 @@ export async function startRetry(courseId: number) {
   const wrong = await wrongQuestionIds(me.id, courseId);
   if (wrong.length === 0) redirect("/tests");
 
-  // shortcut: reuses approved questions from the same topics; switch to lib/ai/similarQuestions (Claude 3) once it exists
+  // AI-made similar questions first (never throws on AI errors), then same-topic seed questions fill the gap
+  const ai = await generateSimilarQuestions({ userId: me.id, courseId, wrongQuestionIds: wrong, max: 10 });
   const pool = await approvedQuestions(courseId);
   const wrongTopics = new Set(pool.filter((q) => wrong.includes(q.id)).map((q) => q.topic));
   const { data: answered } = await supabaseAdmin().from("answers").select("question_id").eq("user_id", me.id).eq("is_correct", true);
   const solved = new Set((answered ?? []).map((a) => a.question_id as number));
-  const ids = shuffle(pool.filter((q) => wrongTopics.has(q.topic) && !solved.has(q.id)))
-    .slice(0, 10).sort(byDifficulty).map((q) => q.id);
+  const fallback = shuffle(pool.filter((q) => wrongTopics.has(q.topic) && !solved.has(q.id))).sort(byDifficulty).map((q) => q.id);
+  const ids = [...ai.ids, ...fallback.filter((id) => !ai.ids.includes(id))].slice(0, 10);
 
   const { data, error } = await supabaseAdmin().from("test_sessions")
     .insert({ user_id: me.id, course_id: courseId, kind: "retry", question_ids: ids, date: todayRome() })
@@ -113,4 +116,10 @@ export async function submitAnswer(sessionId: number, questionId: number, chosen
     if (up.error) throw up.error;
   }
   return { isCorrect, correctIndex: q.data.correct_index, explanation: q.data.explanation, xp, finished };
+}
+
+/** "Why was I wrong?": the agent refuses (BoundaryError) unless this user already answered this question. */
+export async function explainAnswer(sessionId: number, questionId: number) {
+  const me = await getCurrentUser();
+  return explainMistake(me.id, sessionId, questionId);
 }

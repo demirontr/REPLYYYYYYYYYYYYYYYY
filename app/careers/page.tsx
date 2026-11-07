@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { supabaseAdmin } from "@/lib/supabase";
-import { Badge, Button, Card, PageTitle } from "@/components/ui";
+import { Badge, Card, PageTitle } from "@/components/ui";
 import { latestAnalysis } from "@/lib/ai/analysisBot";
 import { loadRated, type RecPayload } from "@/lib/ai/recommender";
 import { feedbackPolicy } from "@/lib/ai/recommendCore";

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card } from "@/components/ui";
 import type { PublicQuestion } from "@/lib/types";
-import { submitAnswer, type AnswerResult } from "../../actions";
+import { explainAnswer, submitAnswer, type AnswerResult } from "../../actions";
 
 // hand-drawn pen marks, animated once via .pen-stroke (see globals.css)
 const Circle = () => (
@@ -31,6 +31,8 @@ export function Quiz({ sessionId, questions, answeredIds }: { sessionId: number;
   const [chosen, setChosen] = useState<number | null>(null);
   const [result, setResult] = useState<AnswerResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [why, setWhy] = useState<string | null>(null);
+  const [explaining, startExplain] = useTransition();
   const [pending, start] = useTransition();
   const shownAt = useRef(0);
 
@@ -59,7 +61,16 @@ export function Quiz({ sessionId, questions, answeredIds }: { sessionId: number;
     setI(i + 1);
     setChosen(null);
     setResult(null);
+    setWhy(null);
   };
+
+  const explain = () => startExplain(async () => {
+    try {
+      setWhy((await explainAnswer(sessionId, q.id)).text);
+    } catch {
+      setWhy("The explanation could not be loaded. Use the explanation above.");
+    }
+  });
 
   const done = answeredIds.length + i;
   return (
@@ -112,6 +123,15 @@ export function Quiz({ sessionId, questions, answeredIds }: { sessionId: number;
             {result.isCorrect ? <>Correct. <span className="marker font-math text-graphite">+{result.xp} XP</span></> : "Not this one. Here is why:"}
           </p>
           <p className="mt-1 max-w-[65ch] font-math text-lg leading-relaxed">{result.explanation}</p>
+          {!result.isCorrect && (
+            why ? (
+              <p className="mt-3 max-w-[65ch] rounded-md bg-indigo-50 p-3 font-math text-lg leading-relaxed">{why}</p>
+            ) : (
+              <Button variant="ghost" className="mt-3 mr-2" onClick={explain} disabled={explaining}>
+                {explaining ? "Looking at your answer…" : "Why was I wrong?"}
+              </Button>
+            )
+          )}
           <Button className="mt-4" onClick={next}>{result.finished ? "See your result" : "Next question"}</Button>
         </div>
       )}
