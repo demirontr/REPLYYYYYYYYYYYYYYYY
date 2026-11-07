@@ -17,6 +17,9 @@ export const LOCATION_STALE_MS = 2 * 60_000;
 /** Demo mode places the user this far from the chosen target. */
 export const SIMULATED_DISTANCE_M = 10;
 
+/** Demo mode anchor: Politecnico di Torino main campus (Corso Duca degli Abruzzi). */
+export const POLITO_CAMPUS: LatLng = { lat: 45.0625, lng: 7.6625 };
+
 const EARTH_RADIUS_M = 6_371_000;
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 const toDeg = (rad: number) => (rad * 180) / Math.PI;
