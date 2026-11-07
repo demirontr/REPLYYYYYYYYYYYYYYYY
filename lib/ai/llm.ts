@@ -22,6 +22,8 @@ export type GeminiSchema =
 export interface JsonCall<T> {
   /** Agent name, used in logs and errors (e.g. "similarQuestions"). */
   agent: string;
+  /** Student the call is for; stored in ai_logs. */
+  userId?: number;
   system: string;
   prompt: string;
   responseSchema: GeminiSchema;
@@ -61,6 +63,26 @@ async function callGemini(agent: string, system: string, prompt: string, schema:
   return text;
 }
 
+type LogEntry = { agent: string; userId?: number; ok: boolean; attempt: number; ms: number; input: string; output: string; error?: string };
+
+/** Server log + ai_logs row (migration 30). Logging must never break an agent, so errors are swallowed. */
+async function logCall(e: LogEntry): Promise<void> {
+  const line = JSON.stringify({ ai: e.agent, user: e.userId, attempt: e.attempt, ms: e.ms, ok: e.ok, error: e.error, input: e.input, output: e.output });
+  if (e.ok) console.log(line); else console.warn(line);
+  try {
+    const { supabaseAdmin } = await import("@/lib/supabase");
+    await supabaseAdmin().from("ai_logs").insert({
+      agent: e.agent, user_id: e.userId ?? null, ok: e.ok, attempt: e.attempt, ms: e.ms,
+      input: e.input.slice(0, 20_000), output: e.output.slice(0, 20_000), error: e.error ?? null,
+    });
+  } catch { /* table missing or DB down: console log above is enough */ }
+}
+
+/** Records an agent run that did not use Gemini (fallback), so the log shows every decision. */
+export async function logFallback(agent: string, userId: number | undefined, reason: string, output: unknown): Promise<void> {
+  await logCall({ agent, userId, ok: false, attempt: 0, ms: 0, input: "", output: JSON.stringify(output), error: `fallback: ${reason}` });
+}
+
 /**
  * Asks Gemini for JSON matching `responseSchema`, then validates it with `parse`.
  * If the call fails or the output is invalid, it retries once, telling the model what was wrong.
@@ -77,12 +99,12 @@ export async function generateJson<T>(call: JsonCall<T>): Promise<T> {
     try {
       text = await callGemini(agent, system, prompt, responseSchema, temperature);
       const value = parse(JSON.parse(text));
-      console.log(JSON.stringify({ ai: agent, attempt, ms: Date.now() - started, ok: true, input: prompt, output: text }));
+      await logCall({ agent, userId: call.userId, ok: true, attempt, ms: Date.now() - started, input: prompt, output: text });
       return value;
     } catch (e) {
       lastError = e instanceof Error ? e.message : String(e);
-      console.warn(JSON.stringify({ ai: agent, attempt, ms: Date.now() - started, ok: false, error: lastError, input: prompt, output: text }));
       if (e instanceof Error && e.name === "TimeoutError") lastError = "timeout";
+      await logCall({ agent, userId: call.userId, ok: false, attempt, ms: Date.now() - started, input: prompt, output: text, error: lastError });
       // missing key or quota problems will not fix themselves on a retry
       if (/GEMINI_API_KEY|HTTP (400|401|403|429)/.test(lastError)) break;
       if (text) prompt = `${call.prompt}\n\nYour previous answer was rejected: ${lastError}. Return valid JSON that fixes this.`;

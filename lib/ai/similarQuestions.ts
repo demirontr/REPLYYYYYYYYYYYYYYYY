@@ -137,6 +137,7 @@ export async function generateSimilarQuestions(input: SimilarQuestionsInput): Pr
   try {
     checked = await generateJson({
       agent: "similarQuestions",
+      userId,
       system: SYSTEM,
       prompt: buildPrompt(need, missing),
       responseSchema,
