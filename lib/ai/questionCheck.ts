@@ -59,7 +59,7 @@ export function checkGeneratedQuestion(
   return { ok: true, question: { parent_id: parentId, topic: parent.topic, difficulty: parent.difficulty, ...body.value } };
 }
 
-export interface NewQuestion extends Omit<CheckedQuestion, "parent_id"> {}
+export type NewQuestion = Omit<CheckedQuestion, "parent_id">;
 export type NewCheckResult = { ok: true; question: NewQuestion } | { ok: false; reason: string };
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
 
