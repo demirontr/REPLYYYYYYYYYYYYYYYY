@@ -59,7 +59,7 @@ export default async function SessionPage({ params }: PageProps<"/tests/session/
               </div>
               <p className="mb-2">{q.prompt}</p>
               <p className="text-sm">
-                Your answer: <b>{a ? q.choices[a.chosen_index] : "-"}</b>
+                Your answer: <b>{a?.chosen_index != null ? q.choices[a.chosen_index] : "-"}</b>
                 {!a?.is_correct && <> · Correct: <b>{q.choices[q.correct_index]}</b></>}
               </p>
               <p className="mt-2 text-sm text-zinc-600">{q.explanation}</p>

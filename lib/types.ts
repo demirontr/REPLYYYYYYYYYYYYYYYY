@@ -59,7 +59,7 @@ export interface Answer {
   session_id: number;
   user_id: number;
   question_id: number;
-  chosen_index: number;
+  chosen_index: number | null; // null = time ran out (duel / live)
   is_correct: boolean;
   time_ms: number;
   xp_awarded: number;
@@ -79,6 +79,7 @@ export interface Duel {
   winner_id: number | null;
   created_at: string;
   finished_at: string | null;
+  result: Record<string, unknown> | null;
 }
 
 export interface Tournament {
@@ -90,6 +91,8 @@ export interface Tournament {
   status: "scheduled" | "live" | "finished";
   question_ids: number[];
   current_index: number;
+  question_started_at: string | null;
+  result: Record<string, unknown> | null;
 }
 
 export interface TournamentEntry { tournament_id: number; user_id: number; correct: number; time_ms: number }
