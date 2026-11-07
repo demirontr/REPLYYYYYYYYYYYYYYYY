@@ -5,6 +5,21 @@
 -- schema.sql already adds duels/tournaments/tournament_entries/notifications to realtime;
 -- the block at the bottom is idempotent and additionally adds `locations`.
 
+-- ---------- Extra columns (additive only) ----------
+-- Final scores, Elo change and bonus, so the result screen does not have to recompute them.
+alter table duels add column if not exists result jsonb;
+-- When the current live question was shown; the server measures answer time from this.
+alter table tournaments add column if not exists question_started_at timestamptz;
+alter table tournaments add column if not exists result jsonb;
+
+-- ---------- Elo (atomic) ----------
+-- Winner gains p_delta, loser loses p_delta. For a draw p_delta may be negative.
+create or replace function update_elo(p_winner int, p_loser int, p_delta int)
+returns void language sql as $$
+  update users set elo = elo + p_delta where id = p_winner;
+  update users set elo = elo - p_delta where id = p_loser;
+$$;
+
 -- ---------- Indexes ----------
 create index if not exists duels_opponent_status_idx on duels (opponent_id, status);
 create index if not exists duels_challenger_status_idx on duels (challenger_id, status);
