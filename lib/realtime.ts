@@ -1,5 +1,5 @@
 // Supabase Realtime wiring for duels and live tournaments (owner: Claude 2).
-// Takes the client as a parameter so it does not depend on how lib/supabase.ts builds it.
+// Takes the client as a parameter: pass supabaseBrowser() from @/lib/supabase (Claude 1).
 // Requires the tables to be in the `supabase_realtime` publication (see migrations/20_duel_live.sql).
 
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
@@ -16,7 +16,7 @@ function close(client: SupabaseClient, ch: RealtimeChannel): Unsubscribe {
 /** New duel invitations addressed to `userId` (INSERT on duels where opponent_id = userId). */
 export function subscribeInvites(
   client: SupabaseClient,
-  userId: string,
+  userId: number,
   onInvite: (duel: Row) => void,
 ): Unsubscribe {
   const ch = client
@@ -48,7 +48,7 @@ export function subscribeDuel(
 }
 
 export type DuelProgress = {
-  userId: string;
+  userId: number;
   answered: number;
   correct: number;
   timeMs: number;

@@ -4,7 +4,7 @@
 export type LatLng = { lat: number; lng: number };
 
 export type LocatedUser = LatLng & {
-  userId: string;
+  userId: number;
   updatedAt: string | Date;
 };
 
@@ -40,7 +40,7 @@ export function isFresh(updatedAt: string | Date, now: number = Date.now()): boo
  * The server also offers `nearby_users()` in SQL; this is the client-side equivalent.
  */
 export function filterNearby<T extends LocatedUser>(
-  me: LatLng & { userId: string },
+  me: LatLng & { userId: number },
   others: T[],
   radiusM: number = NEARBY_RADIUS_M,
   now: number = Date.now(),
