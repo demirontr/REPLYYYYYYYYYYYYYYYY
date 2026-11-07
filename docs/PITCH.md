@@ -24,7 +24,7 @@
 
 ## Live demo (about 3 minutes)
 
-Set up before the demo: two tabs, `http://localhost:3000` (Sofia) and `http://sofia.localhost:3000` (Davide), or the deployed URL in a normal window and an incognito window.
+Set up before the demo: open **https://unir-opal.vercel.app** in a normal window (Sofia) and in an incognito window (Davide). Locally: `http://localhost:3000` and `http://sofia.localhost:3000`.
 
 1. **Daily test (Sofia).** Go to *Tests* and *Start today's test*. Answer one question correctly: the pen circle, a green tick and +XP appear. Answer one wrong: a red strike-through and the explanation.
 2. **Boundary.** Click **Why was I wrong?** The agent explains the mistake behind *her* choice. Say: *"It cannot run before she answers. That check is in the database, not the prompt."*
