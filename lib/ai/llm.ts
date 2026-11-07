@@ -2,7 +2,7 @@
 // Uses the REST API with fetch, so no SDK package is needed.
 // Model name comes from GEMINI_MODEL so it can be changed in one place.
 
-const DEFAULT_MODEL = "gemini-3.8-flash";
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const TIMEOUT_MS = 45_000;
 
 export class LlmError extends Error {
