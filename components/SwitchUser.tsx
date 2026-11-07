@@ -1,11 +1,14 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { switchUser } from "@/app/actions";
 import type { User } from "@/lib/types";
 
 type Option = Pick<User, "id" | "name" | "role">;
 
-export function SwitchUser({ users, currentId }: { users: Option[]; currentId: number }) {
+export function SwitchUser({ users, currentId, hideOnTests }: { users: Option[]; currentId: number; hideOnTests?: boolean }) {
+  const path = usePathname();
+  if (hideOnTests && path.startsWith("/tests")) return null; // presentation build
   const groups = (["student", "company", "university"] as const).map((role) => ({ role, list: users.filter((u) => u.role === role) }));
   return (
     <form action={switchUser}>
