@@ -3,7 +3,8 @@ import { getCurrentUser, todayRome } from "@/lib/session";
 import { supabaseAdmin } from "@/lib/supabase";
 import { Button, Card, PageTitle } from "@/components/ui";
 import type { Course } from "@/lib/types";
-import { startDaily, startRetry } from "./actions";
+import { startDaily, startDemoTest, startRetry } from "./actions";
+import { DEMO_MODE } from "@/lib/demo";
 import { wrongQuestionIds } from "./data";
 
 export default async function TestsPage() {
@@ -11,6 +12,23 @@ export default async function TestsPage() {
   if (me.role !== "student") return <PageTitle sub="Switch to a student account to take tests.">Tests</PageTitle>;
 
   const db = supabaseAdmin();
+  if (DEMO_MODE) {
+    const { data: course } = await db.from("courses").select("*").eq("id", 1).single<Course>();
+    return (
+      <>
+        <PageTitle sub="10 questions, from easy to hard. The explanation appears after you answer.">Tests</PageTitle>
+        <Card className="flex flex-wrap items-center gap-3">
+          <div className="mr-auto">
+            <div className="text-lg font-semibold">{course?.name}</div>
+            <div className="text-graphite/60">{course?.code}</div>
+          </div>
+          <form action={startDemoTest.bind(null, 1)}>
+            <Button>Start the test</Button>
+          </form>
+        </Card>
+      </>
+    );
+  }
   const [{ data: courses }, { data: today }] = await Promise.all([
     db.from("courses").select("*").eq("university_id", me.university_id ?? -1).order("id"),
     db.from("test_sessions").select("id,course_id,finished_at").eq("user_id", me.id).eq("kind", "daily").eq("date", todayRome()),

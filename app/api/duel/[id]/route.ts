@@ -4,7 +4,7 @@ import {
   findSession,
   getDuel,
   publicQuestions,
-  requireUser,
+  requireDuelUser,
   route,
   sessionScore,
   toInt,
@@ -13,7 +13,7 @@ import {
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   return route(async () => {
-    const me = await requireUser();
+    const me = await requireDuelUser();
     const duel = await getDuel(toInt((await ctx.params).id));
     assertParticipant(duel, me.id);
 

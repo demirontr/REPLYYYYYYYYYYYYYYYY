@@ -1,11 +1,11 @@
 // POST { opponentId, size: 5 | 10 } — challenge a nearby player. Proximity is checked on the server.
-import { db, DEMO_COURSE_ID, HttpError, must, pickQuestions, readJson, requireUser, route } from '@/lib/duelServer';
+import { db, DEMO_COURSE_ID, HttpError, must, pickQuestions, readJson, requireDuelUser, route } from '@/lib/duelServer';
 import { DUEL_SIZES, type DuelSize } from '@/lib/duel';
 import { NEARBY_RADIUS_M } from '@/lib/geo';
 
 export async function POST(req: Request) {
   return route(async () => {
-    const me = await requireUser();
+    const me = await requireDuelUser();
     if (me.role !== 'student') throw new HttpError(403, 'Only students can duel');
     const { opponentId, size } = await readJson<{ opponentId?: number; size?: number }>(req);
     if (!Number.isInteger(opponentId) || opponentId === me.id) throw new HttpError(400, 'Invalid opponent');

@@ -5,6 +5,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { getCurrentUser, todayRome } from '@/lib/session';
 import { awardXp } from '@/lib/xp';
+import { duelUnlocked } from '@/lib/demo';
 import {
   decideWinner,
   pickDuelQuestions,
@@ -46,6 +47,13 @@ export async function route(fn: () => Promise<unknown>): Promise<Response> {
 export async function requireUser(): Promise<Me> {
   const u = (await getCurrentUser()) as Me | null;
   if (!u) throw new HttpError(401, 'No user selected');
+  return u;
+}
+
+/** requireUser for duel routes: also needs the presenter password when DEMO_PASSWORD is set. */
+export async function requireDuelUser(): Promise<Me> {
+  const u = await requireUser();
+  if (!(await duelUnlocked())) throw new HttpError(403, 'Duels are locked in this build');
   return u;
 }
 

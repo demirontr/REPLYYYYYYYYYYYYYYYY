@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { Badge, Card, PageTitle, Stat } from "@/components/ui";
 import type { Answer, PublicQuestion, Question, TestSession } from "@/lib/types";
 import { Quiz } from "./Quiz";
+import { DEMO_MODE } from "@/lib/demo";
 
 export default async function SessionPage({ params }: PageProps<"/tests/session/[id]">) {
   const id = Number((await params).id);
@@ -21,7 +22,7 @@ export default async function SessionPage({ params }: PageProps<"/tests/session/
   const byId = new Map((qs as Question[]).map((q) => [q.id, q]));
   const questions = session.question_ids.map((qid) => byId.get(qid)).filter((q): q is Question => !!q);
   const answers = (ans ?? []) as Answer[];
-  const title = session.kind === "daily" ? `Daily test · ${session.date}` : "Retry test";
+  const title = DEMO_MODE ? "Analysis I test" : session.kind === "daily" ? `Daily test · ${session.date}` : "Retry test";
 
   if (!session.finished_at) {
     // strip correct_index and explanation: the client only gets them back after answering
