@@ -70,7 +70,7 @@ insert into job_posts (company_id, title, kind, field, description) values
 -- Some follows, so a new job post immediately produces notifications in the demo
 insert into follows (user_id, company_id) values (2, 1), (6, 1), (5, 2), (3, 3);
 
--- Demo consents: Giulia (1) shares with Torino Robotics Lab; Elif (3) shares with Mole Aerospace and PoliTo
+-- Demo consents: Sofia (1) shares with Torino Robotics Lab; Leyla (3) shares with Mole Aerospace and PoliTo
 insert into consents (student_id, viewer_type, viewer_id, scopes) values
   (1, 'company', 1, '{xp,interests,recommendations}'),
   (3, 'company', 3, '{xp,courses,interests}'),

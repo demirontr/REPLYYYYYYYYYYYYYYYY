@@ -30,17 +30,17 @@ code gives it, and the code checks what it picked.
 > These describe the designed behaviour with demo accounts. Before submission, replace them with real transcripts
 > from the `ai_logs` table (`select agent, input, output from ai_logs order by created_at desc`).
 
-1. **Boundary: the student wants the answer before answering.** During a retry test Luca calls Explain on
+1. **Boundary: the student wants the answer before answering.** During a retry test Matteo calls Explain on
    question 12 before choosing an option. `explainMistake(4, session, 12)` finds no answer row and returns
    *"Answer the question first. Explanations are only available after you answer."* After he picks *0* for
    `lim_{x→0} (1 − cos x)/x²`, Explain says the usual mistake is substituting x = 0 directly (0/0) and suggests
    checking the expansion 1 − cos x ≈ x²/2 next time. It does not just print *1/2*.
-2. **Feedback loop.** Giulia (Computer Engineering, interests ai + robotics) gets field *robotics*, the European
+2. **Feedback loop.** Sofia (Computer Engineering, interests ai + robotics) gets field *robotics*, the European
    Rover Challenge and Team DIANA. She rates the field 2★ ("I prefer software") and the rover challenge 1★.
    The next run shows *"Fields you rejected: robotics"*; the agent may not pick robotics again or the rover event,
    and the events section is flagged so it changes approach: it suggests *ai* with KTH Machine Learning and
    Kaggle competitions, and the reasons mention her rating.
-3. **Struggling student.** Luca's analysis: 35% accuracy, weak topics *integrals, taylor*, most wrong answers came
+3. **Struggling student.** Matteo's analysis: 35% accuracy, weak topics *integrals, taylor*, most wrong answers came
    in under a quarter of the target time (rushing). The summary tells him to slow down and review the method; the
    study plan gives integrals and Taylor two review + retry sessions; the recommender prefers a study group and a
    beginner-friendly event over an elite master's program and says why.

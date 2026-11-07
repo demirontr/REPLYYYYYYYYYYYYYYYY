@@ -13,12 +13,12 @@ insert into companies (id, name, sector, description, fields, website) values
 
 -- Students 1-6 (1 and 2 are the duel demo pair), companies 7-9, university 10
 insert into users (id, name, role, university_id, company_id, department, year, interests, academic_status, gpa, xp, elo) values
-  (1, 'Giulia Rossi',   'student', 1, null, 'Computer Engineering',   1, '{ai,robotics}',          'first year, on track', 27.5, 420, 1230),
-  (2, 'Marco Bianchi',  'student', 1, null, 'Mechanical Engineering', 1, '{robotics,automotive}',  'first year, on track', 25.0, 380, 1190),
-  (3, 'Elif Kaya',      'student', 1, null, 'Aerospace Engineering',  1, '{space,physics}',        'first year, strong',   29.0, 510, 1260),
-  (4, 'Luca Ferrari',   'student', 1, null, 'Electronic Engineering', 1, '{electronics,energy}',   'first year, struggling with analysis', 21.5, 150, 1150),
-  (5, 'Anna Müller',    'student', 2, null, 'Informatics',            1, '{data science,ai}',      'first year, strong',   1.7, 600, 1240),
-  (6, 'Jānis Bērziņš',  'student', 3, null, 'Mechatronics',           2, '{robotics,electronics}', 'second year, on track', 7.8, 300, 1200),
+  (1, 'Sofia Marchetti',   'student', 1, null, 'Computer Engineering',   1, '{ai,robotics}',          'first year, on track', 27.5, 420, 1230),
+  (2, 'Davide Romano',  'student', 1, null, 'Mechanical Engineering', 1, '{robotics,automotive}',  'first year, on track', 25.0, 380, 1190),
+  (3, 'Leyla Aydın',      'student', 1, null, 'Aerospace Engineering',  1, '{space,physics}',        'first year, strong',   29.0, 510, 1260),
+  (4, 'Matteo Greco',   'student', 1, null, 'Electronic Engineering', 1, '{electronics,energy}',   'first year, struggling with analysis', 21.5, 150, 1150),
+  (5, 'Jonas Weber',    'student', 2, null, 'Informatics',            1, '{data science,ai}',      'first year, strong',   1.7, 600, 1240),
+  (6, 'Elīna Kalniņa',  'student', 3, null, 'Mechatronics',           2, '{robotics,electronics}', 'second year, on track', 7.8, 300, 1200),
   (7, 'Torino Robotics Lab (HR)', 'company', null, 1, null, null, '{}', null, null, 0, 1200),
   (8, 'Alpine Data Systems (HR)', 'company', null, 2, null, null, '{}', null, null, 0, 1200),
   (9, 'Mole Aerospace (HR)',      'company', null, 3, null, null, '{}', null, null, 0, 1200),
