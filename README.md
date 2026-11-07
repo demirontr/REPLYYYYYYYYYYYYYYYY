@@ -2,6 +2,8 @@
 
 **Reply Student Tech Clash 2026 · challenge "AI on Campus"**
 
+**Live demo: https://unir-opal.vercel.app** (pick a demo account at the top right)
+
 University students practise a course a little every day, compete with classmates they actually meet on campus, and get AI guidance that points them to the next step without thinking for them.
 
 Demo course: **Politecnico di Torino · Mathematical Analysis I (Analisi Matematica I)**, with 40 hand-checked questions across 8 topics.
@@ -75,7 +77,7 @@ There is no login: pick a demo account from **Switch user** at the top right. Th
 | 7–9 | Company accounts | Post jobs, see consenting students |
 | 10 | PoliTo Student Office | Live competitions, question review, aggregate statistics |
 
-**Two users in one browser:** the user choice is a cookie, so open the second player on a different host, for example `http://localhost:3000` for player one and `http://sofia.localhost:3000` for player two. Then press **Simulate location (demo)** on both.
+**Two users in one browser:** the user choice is a cookie, so the second player needs separate cookies: on the live site use a normal window and an incognito window. Locally, use `http://localhost:3000` and `http://sofia.localhost:3000`. Then press **Simulate location (demo)** on both.
 
 ## Stack
 
