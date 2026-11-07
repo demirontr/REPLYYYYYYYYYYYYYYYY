@@ -75,7 +75,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
   };
 
   if (error && !s) return <Wrap><p className="text-rose-600">{error}</p></Wrap>;
-  if (!s) return <Wrap><p className="text-slate-500">Loading…</p></Wrap>;
+  if (!s) return <Wrap><p className="text-zinc-500">Loading…</p></Wrap>;
 
   const startedAtLocal = s.questionStartedAt ? new Date(s.questionStartedAt).getTime() + clockOffset.current : undefined;
 
@@ -83,8 +83,8 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
     <Wrap>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <Link href="/live" className="text-sm text-sky-700 hover:underline">← All competitions</Link>
-          <h1 className="text-2xl font-bold text-slate-900">{s.title}</h1>
+          <Link href="/live" className="text-sm text-indigo-700 hover:underline">← All competitions</Link>
+          <h1 className="text-2xl font-bold text-zinc-900">{s.title}</h1>
         </div>
         {s.status === 'live' && (
           <span className="rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-700">
@@ -96,8 +96,8 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       {error && <p className="mb-3 text-sm text-rose-600">{error}</p>}
 
       {s.isHost && (
-        <div className="mb-4 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <span className="mr-auto self-center text-sm font-medium text-slate-700">Host controls</span>
+        <div className="mb-4 flex flex-wrap gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+          <span className="mr-auto self-center text-sm font-medium text-zinc-700">Host controls</span>
           {s.status === 'scheduled' && (
             <button type="button" disabled={busy} onClick={() => control('start')} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">
               Start now
@@ -105,10 +105,10 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
           )}
           {s.status === 'live' && (
             <>
-              <button type="button" disabled={busy} onClick={() => control('next')} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50">
+              <button type="button" disabled={busy} onClick={() => control('next')} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50">
                 {s.index + 1 < s.total ? 'Next question' : 'Finish & award prizes'}
               </button>
-              <button type="button" disabled={busy} onClick={() => control('finish')} className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-800 hover:bg-white disabled:opacity-50">
+              <button type="button" disabled={busy} onClick={() => control('finish')} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-800 hover:bg-white disabled:opacity-50">
                 End early
               </button>
             </>
@@ -117,20 +117,20 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       )}
 
       {s.status === 'scheduled' && (
-        <p className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-slate-600">
+        <p className="mb-4 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-600">
           Waiting room — the competition starts when the host presses start. Keep this page open.
         </p>
       )}
 
       {s.status === 'live' && s.current && (
         s.isHost ? (
-          <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="mb-1 text-sm text-slate-500">Question {s.index + 1} on students&apos; screens</p>
-            <p className="whitespace-pre-wrap text-lg font-medium text-slate-900">{s.current.prompt}</p>
-            <p className="mt-2 text-sm text-slate-500">{s.leaderboard.length} players · time limit {fmtSeconds(QUESTION_TIME_LIMIT_MS[s.current.difficulty])}</p>
+          <div className="mb-4 rounded-2xl border border-zinc-200 bg-white p-5">
+            <p className="mb-1 text-sm text-zinc-500">Question {s.index + 1} on students&apos; screens</p>
+            <p className="whitespace-pre-wrap text-lg font-medium text-zinc-900">{s.current.prompt}</p>
+            <p className="mt-2 text-sm text-zinc-500">{s.leaderboard.length} players · time limit {fmtSeconds(QUESTION_TIME_LIMIT_MS[s.current.difficulty])}</p>
           </div>
         ) : s.answeredCurrent && !answeredHere.has(s.index) ? (
-          <p className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-slate-600">Answer received — wait for the next question.</p>
+          <p className="mb-4 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-600">Answer received — wait for the next question.</p>
         ) : (
           <div className="mb-4">
             <QuestionCard
@@ -157,18 +157,18 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
         </div>
       )}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4">
-        <h2 className="mb-2 font-semibold text-slate-900">Leaderboard</h2>
-        {s.leaderboard.length === 0 && <p className="text-sm text-slate-500">No answers yet.</p>}
-        <ol className="divide-y divide-slate-100">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+        <h2 className="mb-2 font-semibold text-zinc-900">Leaderboard</h2>
+        {s.leaderboard.length === 0 && <p className="text-sm text-zinc-500">No answers yet.</p>}
+        <ol className="divide-y divide-zinc-100">
           {s.leaderboard.map((e) => (
             <li key={e.userId} className={`flex items-center justify-between py-2 ${e.userId === s.meId ? 'font-semibold' : ''}`}>
-              <span className="text-slate-900">
-                <span className="mr-2 inline-block w-6 text-slate-400">{e.rank}.</span>
+              <span className="text-zinc-900">
+                <span className="mr-2 inline-block w-6 text-zinc-400">{e.rank}.</span>
                 {e.name}
                 {e.userId === s.meId && ' (you)'}
               </span>
-              <span className="text-sm text-slate-600">
+              <span className="text-sm text-zinc-600">
                 {e.correct} correct · {fmtSeconds(e.timeMs)}
               </span>
             </li>

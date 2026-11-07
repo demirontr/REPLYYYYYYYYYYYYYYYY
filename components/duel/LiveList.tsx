@@ -8,7 +8,7 @@ import { api } from './api';
 type Item = { id: number; title: string; status: 'scheduled' | 'live' | 'finished'; startsAt: string; questions: number };
 
 const statusStyle: Record<Item['status'], string> = {
-  scheduled: 'bg-slate-100 text-slate-700',
+  scheduled: 'bg-zinc-100 text-zinc-700',
   live: 'bg-rose-100 text-rose-700',
   finished: 'bg-emerald-100 text-emerald-700',
 };
@@ -50,8 +50,8 @@ export function LiveList() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-4">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Live Campus Competition</h1>
-        <p className="text-slate-600">
+        <h1 className="text-2xl font-bold text-zinc-900">Live Campus Competition</h1>
+        <p className="text-zinc-600">
           Everyone at your university answers the same questions at the same time. Most correct answers wins; ties go
           to the faster player. Top 3 earn 100 / 60 / 30 XP.
         </p>
@@ -60,24 +60,24 @@ export function LiveList() {
       {message && <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900">{message}</div>}
 
       {isHost && (
-        <form onSubmit={create} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
-          <h2 className="font-semibold text-slate-900">Create a competition</h2>
+        <form onSubmit={create} className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
+          <h2 className="font-semibold text-zinc-900">Create a competition</h2>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2"
             placeholder="Title"
           />
           <div className="flex items-center gap-3">
             <select
               value={size}
               onChange={(e) => setSize(Number(e.target.value) as 5 | 10)}
-              className="rounded-lg border border-slate-300 px-3 py-2"
+              className="rounded-lg border border-zinc-300 px-3 py-2"
             >
               <option value={5}>5 questions</option>
               <option value={10}>10 questions</option>
             </select>
-            <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">
+            <button type="submit" className="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700">
               Create
             </button>
           </div>
@@ -85,13 +85,13 @@ export function LiveList() {
       )}
 
       <ul className="space-y-2">
-        {items.length === 0 && <li className="text-slate-500">No competitions yet.</li>}
+        {items.length === 0 && <li className="text-zinc-500">No competitions yet.</li>}
         {items.map((t) => (
           <li key={t.id}>
-            <Link href={`/live/${t.id}`} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 hover:border-sky-400">
+            <Link href={`/live/${t.id}`} className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 hover:border-indigo-400">
               <div>
-                <p className="font-medium text-slate-900">{t.title}</p>
-                <p className="text-xs text-slate-500">
+                <p className="font-medium text-zinc-900">{t.title}</p>
+                <p className="text-xs text-zinc-500">
                   {t.questions} questions · {new Date(t.startsAt).toLocaleString()}
                 </p>
               </div>

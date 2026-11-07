@@ -39,13 +39,15 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<AnswerFeedback | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const done = useRef(false);
+  const done = useRef(false); // guards double submits within one event loop turn
+  const [locked, setLocked] = useState(false); // same flag, for rendering
 
   const remaining = Math.max(0, limitMs - (now - start.current));
 
   async function submit(choice: number | null) {
     if (done.current) return;
     done.current = true;
+    setLocked(true);
     setChosen(choice);
     setSending(true);
     try {
@@ -70,8 +72,8 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
   }, [remaining]);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
+    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+      <div className="mb-3 flex items-center justify-between text-sm text-zinc-500">
         <span>
           Question {index + 1} / {total} · {question.topic}
         </span>
@@ -80,32 +82,32 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
         </span>
       </div>
 
-      <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="mb-4 h-2 overflow-hidden rounded-full bg-zinc-100">
         <div
-          className={`h-full transition-[width] duration-100 ${remaining < 5000 ? 'bg-rose-500' : 'bg-sky-500'}`}
+          className={`h-full transition-[width] duration-100 ${remaining < 5000 ? 'bg-rose-500' : 'bg-indigo-500'}`}
           style={{ width: `${(remaining / limitMs) * 100}%` }}
         />
       </div>
 
-      <p className="mb-4 whitespace-pre-wrap text-lg font-medium text-slate-900">{question.prompt}</p>
+      <p className="mb-4 whitespace-pre-wrap text-lg font-medium text-zinc-900">{question.prompt}</p>
 
       <div className="grid gap-2">
         {question.choices.map((c, i) => {
-          let cls = 'border-slate-200 hover:border-sky-400 hover:bg-sky-50';
+          let cls = 'border-zinc-200 hover:border-indigo-400 hover:bg-indigo-50';
           if (feedback) {
             if (i === feedback.correctIndex) cls = 'border-emerald-500 bg-emerald-50';
             else if (i === chosen) cls = 'border-rose-500 bg-rose-50';
-            else cls = 'border-slate-200 opacity-60';
-          } else if (i === chosen) cls = 'border-sky-500 bg-sky-50';
+            else cls = 'border-zinc-200 opacity-60';
+          } else if (i === chosen) cls = 'border-indigo-500 bg-indigo-50';
           return (
             <button
               key={i}
               type="button"
-              disabled={done.current || sending}
+              disabled={locked || sending}
               onClick={() => submit(i)}
               className={`rounded-xl border-2 px-4 py-3 text-left transition ${cls}`}
             >
-              <span className="mr-2 font-semibold text-slate-400">{String.fromCharCode(65 + i)}</span>
+              <span className="mr-2 font-semibold text-zinc-400">{String.fromCharCode(65 + i)}</span>
               {c}
             </button>
           );
@@ -113,19 +115,19 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
       </div>
 
       <div className="mt-4 min-h-6 text-sm">
-        {!feedback && !error && <span className="text-slate-500">{Math.ceil(remaining / 1000)} s left</span>}
+        {!feedback && !error && <span className="text-zinc-500">{Math.ceil(remaining / 1000)} s left</span>}
         {error && <span className="text-rose-600">{error}</span>}
         {feedback && (
           <div className="space-y-2">
             <p className={feedback.isCorrect ? 'font-semibold text-emerald-700' : 'font-semibold text-rose-700'}>
               {feedback.isCorrect ? 'Correct!' : chosen === null ? 'Time is up.' : 'Not quite.'}
             </p>
-            {feedback.explanation && <p className="text-slate-600">{feedback.explanation}</p>}
+            {feedback.explanation && <p className="text-zinc-600">{feedback.explanation}</p>}
             {onNext && (
               <button
                 type="button"
                 onClick={onNext}
-                className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700"
+                className="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700"
               >
                 {index + 1 < total ? 'Next question' : 'See result'}
               </button>

@@ -72,7 +72,7 @@ export function DuelPlay({ duelId }: { duelId: number }) {
   }
 
   if (error) return <Shell><p className="text-rose-600">{error}</p></Shell>;
-  if (!state || index === null) return <Shell><p className="text-slate-500">Loading duel…</p></Shell>;
+  if (!state || index === null) return <Shell><p className="text-zinc-500">Loading duel…</p></Shell>;
 
   const header = (
     <div className="mb-4 grid grid-cols-2 gap-3">
@@ -82,12 +82,12 @@ export function DuelPlay({ duelId }: { duelId: number }) {
   );
 
   if (state.status === 'invited')
-    return <Shell>{header}<p className="text-slate-600">Waiting for {state.opponent.name} to accept…</p></Shell>;
+    return <Shell>{header}<p className="text-zinc-600">Waiting for {state.opponent.name} to accept…</p></Shell>;
   if (state.status === 'declined' || state.status === 'expired')
     return (
       <Shell>
-        <p className="mb-3 text-slate-700">This duel was {state.status}.</p>
-        <Link href="/duel" className="text-sky-700 underline">Back to the lobby</Link>
+        <p className="mb-3 text-zinc-700">This duel was {state.status}.</p>
+        <Link href="/duel" className="text-indigo-700 underline">Back to the lobby</Link>
       </Shell>
     );
 
@@ -114,7 +114,7 @@ export function DuelPlay({ duelId }: { duelId: number }) {
   return (
     <Shell>
       {header}
-      <p className="text-slate-600">You are done. Waiting for {state.opponent.name} to finish…</p>
+      <p className="text-zinc-600">You are done. Waiting for {state.opponent.name} to finish…</p>
     </Shell>
   );
 }
@@ -125,13 +125,13 @@ function Shell({ children }: { children: ReactNode }) {
 
 function Player({ name, elo, answered, total }: { name: string; elo: number; answered: number; total: number }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3">
-      <p className="truncate font-medium text-slate-900">{name}</p>
-      <p className="mb-2 text-xs text-slate-500">Elo {elo}</p>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full bg-sky-500 transition-all" style={{ width: `${(answered / total) * 100}%` }} />
+    <div className="rounded-xl border border-zinc-200 bg-white p-3">
+      <p className="truncate font-medium text-zinc-900">{name}</p>
+      <p className="mb-2 text-xs text-zinc-500">Elo {elo}</p>
+      <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+        <div className="h-full bg-indigo-500 transition-all" style={{ width: `${(answered / total) * 100}%` }} />
       </div>
-      <p className="mt-1 text-xs text-slate-500">{answered} / {total}</p>
+      <p className="mt-1 text-xs text-zinc-500">{answered} / {total}</p>
     </div>
   );
 }
@@ -143,16 +143,16 @@ function Result({ s }: { s: State }) {
   const won = r.winnerId === s.me.id;
   const draw = r.winnerId === null;
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 text-center">
-      <p className="text-3xl font-bold text-slate-900">{draw ? 'Draw!' : won ? 'You won! 🎉' : `${s.opponent.name} won`}</p>
+    <div className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 text-center">
+      <p className="text-3xl font-bold text-zinc-900">{draw ? 'Draw!' : won ? 'You won! 🎉' : `${s.opponent.name} won`}</p>
       <div className="grid grid-cols-2 gap-3 text-sm">
         <Score label="You" correct={my?.correct ?? 0} timeMs={my?.timeMs ?? 0} total={s.size} />
         <Score label={s.opponent.name} correct={their?.correct ?? 0} timeMs={their?.timeMs ?? 0} total={s.size} />
       </div>
       {!draw && my && their && my.correct === their.correct && (
-        <p className="text-sm text-slate-500">Same number of correct answers — decided by total time.</p>
+        <p className="text-sm text-zinc-500">Same number of correct answers — decided by total time.</p>
       )}
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-zinc-700">
         {(() => {
           const d = r.eloChange[String(s.me.id)] ?? 0;
           const elo = `${d >= 0 ? '+' : '−'}${Math.abs(d)} Elo`;
@@ -160,7 +160,7 @@ function Result({ s }: { s: State }) {
           return `${elo} · +${r.bonusXp} bonus XP${r.bonusXp > 20 ? ' (you beat a stronger player!)' : ''}`;
         })()}
       </p>
-      <Link href="/duel" className="inline-block rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700">
+      <Link href="/duel" className="inline-block rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700">
         Back to the lobby
       </Link>
     </div>
@@ -169,10 +169,10 @@ function Result({ s }: { s: State }) {
 
 function Score({ label, correct, timeMs, total }: { label: string; correct: number; timeMs: number; total: number }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-3">
-      <p className="truncate font-medium text-slate-900">{label}</p>
-      <p className="text-2xl font-bold text-slate-900">{correct} / {total}</p>
-      <p className="text-slate-500">{fmtSeconds(timeMs)}</p>
+    <div className="rounded-xl bg-zinc-50 p-3">
+      <p className="truncate font-medium text-zinc-900">{label}</p>
+      <p className="text-2xl font-bold text-zinc-900">{correct} / {total}</p>
+      <p className="text-zinc-500">{fmtSeconds(timeMs)}</p>
     </div>
   );
 }
