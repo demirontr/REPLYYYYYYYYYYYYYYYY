@@ -19,6 +19,10 @@ export default async function OrgPage() {
 
       {agg && (
         <section className="mb-8">
+          <Card className="mb-4 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span>Generate questions from your course notes and approve them before students see them.</span>
+            <Link href="/org/questions" className="font-medium text-indigo-700 underline">Question review</Link>
+          </Card>
           <h2 className="mb-2 font-semibold">All your students (aggregate, no individual data)</h2>
           <div className="mb-3 grid gap-4 sm:grid-cols-4">
             <Stat label="Students" value={agg.students} />

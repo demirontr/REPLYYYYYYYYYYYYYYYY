@@ -54,7 +54,33 @@ export function checkGeneratedQuestion(
   const parentId = Number(raw.parent_id);
   const parent = parents.get(parentId);
   if (!parent) return { ok: false, reason: `unknown parent_id ${String(raw.parent_id)}` };
+  const body = checkBody(raw, seenPrompts);
+  if (!body.ok) return body;
+  return { ok: true, question: { parent_id: parentId, topic: parent.topic, difficulty: parent.difficulty, ...body.value } };
+}
 
+export interface NewQuestion extends Omit<CheckedQuestion, "parent_id"> {}
+export type NewCheckResult = { ok: true; question: NewQuestion } | { ok: false; reason: string };
+const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
+
+/** Validates a brand-new question (question generator): topic must be one of the course topics. */
+export function checkNewQuestion(
+  raw: RawGeneratedQuestion & { topic?: unknown; difficulty?: unknown },
+  topics: string[],
+  seenPrompts: Set<string>,
+): NewCheckResult {
+  if (typeof raw.topic !== "string" || !topics.includes(raw.topic)) return { ok: false, reason: `topic must be one of: ${topics.join(", ")}` };
+  const difficulty = DIFFICULTIES.find((d) => d === raw.difficulty);
+  if (!difficulty) return { ok: false, reason: "difficulty must be easy, medium or hard" };
+  const body = checkBody(raw, seenPrompts);
+  if (!body.ok) return body;
+  return { ok: true, question: { topic: raw.topic, difficulty, ...body.value } };
+}
+
+type Body = Pick<CheckedQuestion, "prompt" | "choices" | "correct_index" | "explanation">;
+
+/** Shared checks: prompt, 4 distinct choices, one correct index that matches final_answer, explanation, no duplicate. */
+function checkBody(raw: RawGeneratedQuestion, seenPrompts: Set<string>): { ok: true; value: Body } | { ok: false; reason: string } {
   if (typeof raw.prompt !== "string" || raw.prompt.trim().length < 8) return { ok: false, reason: "prompt missing or too short" };
   const prompt = raw.prompt.trim();
   if (prompt.length > MAX_PROMPT) return { ok: false, reason: "prompt too long" };
@@ -77,11 +103,7 @@ export function checkGeneratedQuestion(
   const key = normalizeText(prompt);
   if (seenPrompts.has(key)) return { ok: false, reason: "duplicate prompt" };
   seenPrompts.add(key);
-
-  return {
-    ok: true,
-    question: { parent_id: parentId, topic: parent.topic, difficulty: parent.difficulty, prompt, choices, correct_index: idx, explanation },
-  };
+  return { ok: true, value: { prompt, choices, correct_index: idx, explanation } };
 }
 
 /** Shuffles the choices so the correct answer is not always in the position the model picked. */

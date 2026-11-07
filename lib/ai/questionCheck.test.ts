@@ -47,3 +47,12 @@ for (let i = 0; i < 50; i++) {
 }
 
 console.log("questionCheck ok");
+
+// brand-new questions (question generator): topic must be a course topic, difficulty must be valid
+import { checkNewQuestion } from "./questionCheck.ts";
+const topics = ["limits", "integrals"];
+assert.ok(checkNewQuestion({ ...good, prompt: "Compute lim_{x→0} sin(3x)/x.", choices: ["0", "1", "3", "1/3"], correct_index: 2, final_answer: "3", topic: "limits", difficulty: "easy" }, topics, new Set()).ok);
+assert.equal(checkNewQuestion({ ...good, topic: "cooking", difficulty: "easy" }, topics, new Set()).ok, false);
+assert.equal(checkNewQuestion({ ...good, topic: "limits", difficulty: "extreme" }, topics, new Set()).ok, false);
+assert.equal(checkNewQuestion({ ...good, topic: "limits", difficulty: "hard", final_answer: "0" }, topics, new Set()).ok, false);
+console.log("checkNewQuestion ok");
