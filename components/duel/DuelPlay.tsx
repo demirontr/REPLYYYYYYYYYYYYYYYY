@@ -36,17 +36,20 @@ export function DuelPlay({ duelId }: { duelId: number }) {
   const mine = useRef({ answered: 0, correct: 0, timeMs: 0 });
   const room = useRef<ReturnType<typeof joinDuelRoom> | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const s = await api<State>(`/api/duel/${duelId}`);
-      setState(s);
-      setOpponentAnswered((n) => Math.max(n, s.opponentProgress.answered));
-      setIndex((i) => (i === null ? s.myProgress.answered : i));
-      mine.current = { answered: s.myProgress.answered, correct: s.myProgress.correct, timeMs: s.myProgress.timeMs };
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not load the duel');
-    }
-  }, [duelId]);
+  // State is only set inside promise callbacks (react-hooks/set-state-in-effect).
+  const load = useCallback(
+    () =>
+      api<State>(`/api/duel/${duelId}`).then(
+        (s) => {
+          setState(s);
+          setOpponentAnswered((n) => Math.max(n, s.opponentProgress.answered));
+          setIndex((i) => (i === null ? s.myProgress.answered : i));
+          mine.current = { answered: s.myProgress.answered, correct: s.myProgress.correct, timeMs: s.myProgress.timeMs };
+        },
+        (e: unknown) => setError(e instanceof Error ? e.message : 'Could not load the duel'),
+      ),
+    [duelId],
+  );
 
   useEffect(() => {
     void load();

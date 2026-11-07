@@ -33,8 +33,9 @@ const badge: Record<CardQuestion['difficulty'], string> = {
 };
 
 export function QuestionCard({ question, index, total, limitMs, startedAt, onAnswer, onNext }: Props) {
-  const start = useRef(startedAt ?? Date.now());
-  const [now, setNow] = useState(Date.now());
+  // Lazy initializers keep Date.now() out of render (react-hooks/purity).
+  const [start] = useState(() => startedAt ?? Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const [chosen, setChosen] = useState<number | null>(null);
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<AnswerFeedback | null>(null);
@@ -42,7 +43,7 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
   const done = useRef(false); // guards double submits within one event loop turn
   const [locked, setLocked] = useState(false); // same flag, for rendering
 
-  const remaining = Math.max(0, limitMs - (now - start.current));
+  const remaining = Math.max(0, limitMs - (now - start));
 
   async function submit(choice: number | null) {
     if (done.current) return;
@@ -51,7 +52,7 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
     setChosen(choice);
     setSending(true);
     try {
-      const fb = await onAnswer(choice, Math.min(Date.now() - start.current, limitMs));
+      const fb = await onAnswer(choice, Math.min(Date.now() - start, limitMs));
       setFeedback(fb);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send answer');
@@ -60,16 +61,22 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
     }
   }
 
+  // Latest submit for the timer callback (refs are written in an effect, not during render).
+  const submitRef = useRef(submit);
+  useEffect(() => {
+    submitRef.current = submit;
+  });
+
+  // Clock tick; when time runs out, submit "no answer" from the timer callback (not synchronously in the effect).
   useEffect(() => {
     if (feedback || error) return;
-    const t = setInterval(() => setNow(Date.now()), 100);
+    const t = setInterval(() => {
+      const n = Date.now();
+      setNow(n);
+      if (n - start >= limitMs) void submitRef.current(null);
+    }, 100);
     return () => clearInterval(t);
-  }, [feedback, error]);
-
-  useEffect(() => {
-    if (remaining === 0) void submit(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remaining]);
+  }, [feedback, error, start, limitMs]);
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">

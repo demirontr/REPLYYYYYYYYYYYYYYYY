@@ -41,22 +41,26 @@ export function DuelLobby({ meId }: { meId: number }) {
   const seenNearby = useRef<Set<number>>(new Set());
   const [, tick] = useState(0);
 
-  const refresh = useCallback(async () => {
-    try {
-      const data = await api<Lobby>('/api/duel/lobby');
-      setLobby(data);
-      if (data.activeDuelId) router.push(`/duel/${data.activeDuelId}`);
+  // State is only set inside promise callbacks, so calling this from an effect is fine
+  // (react-hooks/set-state-in-effect).
+  const refresh = useCallback(
+    () =>
+      api<Lobby>('/api/duel/lobby').then(
+        (data) => {
+          setLobby(data);
+          if (data.activeDuelId) router.push(`/duel/${data.activeDuelId}`);
 
-      // Automatic prompt for players who just came within range.
-      const ids = new Set(data.nearby.map((n) => n.id));
-      const fresh = data.nearby.filter((n) => !seenNearby.current.has(n.id));
-      if (fresh.length) setPrompts((p) => [...p, ...fresh.map((n) => ({ id: n.id, name: n.name }))]);
-      seenNearby.current = ids;
-      setPrompts((p) => p.filter((x) => ids.has(x.id)));
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Could not load the lobby');
-    }
-  }, [router]);
+          // Automatic prompt for players who just came within range.
+          const ids = new Set(data.nearby.map((n) => n.id));
+          const fresh = data.nearby.filter((n) => !seenNearby.current.has(n.id));
+          if (fresh.length) setPrompts((p) => [...p, ...fresh.map((n) => ({ id: n.id, name: n.name }))]);
+          seenNearby.current = ids;
+          setPrompts((p) => p.filter((x) => ids.has(x.id)));
+        },
+        (e: unknown) => setMessage(e instanceof Error ? e.message : 'Could not load the lobby'),
+      ),
+    [router],
+  );
 
   // Poll (fallback) + realtime invitations (instant).
   useEffect(() => {

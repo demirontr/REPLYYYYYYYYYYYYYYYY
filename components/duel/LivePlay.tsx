@@ -1,7 +1,7 @@
 'use client';
 // One live competition: waiting room, synchronized questions, live leaderboard, host controls (owner: Claude 2).
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { subscribeTournament } from '@/lib/realtime';
@@ -30,17 +30,20 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
   const [s, setS] = useState<State | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const clockOffset = useRef(0); // local clock − server clock
+  const [clockOffset, setClockOffset] = useState(0); // local clock − server clock
 
-  const load = useCallback(async () => {
-    try {
-      const d = await api<State>(`/api/live/${tournamentId}`);
-      clockOffset.current = Date.now() - new Date(d.serverNow).getTime();
-      setS(d);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not load the competition');
-    }
-  }, [tournamentId]);
+  // State is only set inside promise callbacks (react-hooks/set-state-in-effect).
+  const load = useCallback(
+    () =>
+      api<State>(`/api/live/${tournamentId}`).then(
+        (d) => {
+          setClockOffset(Date.now() - new Date(d.serverNow).getTime());
+          setS(d);
+        },
+        (e: unknown) => setError(e instanceof Error ? e.message : 'Could not load the competition'),
+      ),
+    [tournamentId],
+  );
 
   useEffect(() => {
     void load();
@@ -77,7 +80,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
   if (error && !s) return <Wrap><p className="text-rose-600">{error}</p></Wrap>;
   if (!s) return <Wrap><p className="text-zinc-500">Loading…</p></Wrap>;
 
-  const startedAtLocal = s.questionStartedAt ? new Date(s.questionStartedAt).getTime() + clockOffset.current : undefined;
+  const startedAtLocal = s.questionStartedAt ? new Date(s.questionStartedAt).getTime() + clockOffset : undefined;
 
   return (
     <Wrap>

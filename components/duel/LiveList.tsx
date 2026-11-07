@@ -20,15 +20,18 @@ export function LiveList() {
   const [size, setSize] = useState<5 | 10>(10);
   const [message, setMessage] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const d = await api<{ isHost?: boolean; tournaments: Item[] }>('/api/live');
-      setItems(d.tournaments);
-      setIsHost(Boolean(d.isHost));
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : 'Could not load competitions');
-    }
-  }, []);
+  // State is only set inside promise callbacks (react-hooks/set-state-in-effect).
+  const load = useCallback(
+    () =>
+      api<{ isHost?: boolean; tournaments: Item[] }>('/api/live').then(
+        (d) => {
+          setItems(d.tournaments);
+          setIsHost(Boolean(d.isHost));
+        },
+        (e: unknown) => setMessage(e instanceof Error ? e.message : 'Could not load competitions'),
+      ),
+    [],
+  );
 
   useEffect(() => {
     void load();
