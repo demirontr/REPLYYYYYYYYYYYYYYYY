@@ -56,10 +56,10 @@ export function isInviteExpired(createdAt: string | Date, now: number = Date.now
   return now - new Date(createdAt).getTime() > INVITE_TTL_MS;
 }
 
-export type PlayerScore = { userId: string; correct: number; timeMs: number };
+export type PlayerScore = { userId: number; correct: number; timeMs: number };
 
 /** More correct answers wins; on a tie, less total time wins; identical → draw (null). */
-export function decideWinner(a: PlayerScore, b: PlayerScore): string | null {
+export function decideWinner(a: PlayerScore, b: PlayerScore): number | null {
   if (a.correct !== b.correct) return a.correct > b.correct ? a.userId : b.userId;
   if (a.timeMs !== b.timeMs) return a.timeMs < b.timeMs ? a.userId : b.userId;
   return null;
@@ -75,7 +75,7 @@ export function rankEntries<T extends PlayerScore>(entries: T[]): Array<T & { ra
 /** XP prizes for the top 3 of a live tournament. */
 export const TOURNAMENT_PRIZE_XP = [100, 60, 30] as const;
 
-export function tournamentPrizes(entries: PlayerScore[]): Array<{ userId: string; xp: number }> {
+export function tournamentPrizes(entries: PlayerScore[]): Array<{ userId: number; xp: number }> {
   return rankEntries(entries)
     .slice(0, TOURNAMENT_PRIZE_XP.length)
     .filter((e) => e.correct > 0)
