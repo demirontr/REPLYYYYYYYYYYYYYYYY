@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { subscribeTournament } from '@/lib/realtime';
 import { QUESTION_TIME_LIMIT_MS } from '@/lib/duel';
-import { api, fmtSeconds } from './api';
+import { api, fmtSeconds, POLL_MS } from './api';
 import { QuestionCard, type AnswerFeedback, type CardQuestion } from './QuestionCard';
 
 type State = {
@@ -51,7 +51,7 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       onTournament: () => void load(),
       onEntry: () => void load(),
     });
-    const t = setInterval(load, 2500);
+    const t = setInterval(load, POLL_MS);
     return () => {
       clearInterval(t);
       unsub();
@@ -77,8 +77,8 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
     return api<AnswerFeedback>(`/api/live/${tournamentId}/answer`, { questionId: q.id, chosenIndex });
   };
 
-  if (error && !s) return <Wrap><p className="text-rose-600">{error}</p></Wrap>;
-  if (!s) return <Wrap><p className="text-zinc-500">Loading…</p></Wrap>;
+  if (error && !s) return <Wrap><p className="text-pen">{error}</p></Wrap>;
+  if (!s) return <Wrap><p className="text-graphite/60">Loading…</p></Wrap>;
 
   const startedAtLocal = s.questionStartedAt ? new Date(s.questionStartedAt).getTime() + clockOffset : undefined;
 
@@ -87,31 +87,31 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <Link href="/live" className="text-sm text-indigo-700 hover:underline">← All competitions</Link>
-          <h1 className="text-2xl font-bold text-zinc-900">{s.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-graphite">{s.title}</h1>
         </div>
         {s.status === 'live' && (
-          <span className="rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-700">
-            ● LIVE · {s.index + 1}/{s.total}
+          <span className="rounded-full bg-pen/10 px-3 py-1 text-sm font-medium text-pen">
+            ● LIVE · <span className="font-math">{s.index + 1}/{s.total}</span>
           </span>
         )}
       </div>
 
-      {error && <p className="mb-3 text-sm text-rose-600">{error}</p>}
+      {error && <p className="mb-3 text-sm text-pen">{error}</p>}
 
       {s.isHost && (
-        <div className="mb-4 flex flex-wrap gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-          <span className="mr-auto self-center text-sm font-medium text-zinc-700">Host controls</span>
+        <div className="mb-4 flex flex-wrap gap-2 rounded-md border border-grid bg-paper p-3">
+          <span className="mr-auto self-center text-sm font-medium text-graphite/80">Host controls</span>
           {s.status === 'scheduled' && (
-            <button type="button" disabled={busy} onClick={() => control('start')} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50">
+            <button type="button" disabled={busy} onClick={() => control('start')} className="rounded-md bg-pen px-4 py-2 text-sm font-medium text-white hover:bg-pen/90 disabled:opacity-50">
               Start now
             </button>
           )}
           {s.status === 'live' && (
             <>
-              <button type="button" disabled={busy} onClick={() => control('next')} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50">
+              <button type="button" disabled={busy} onClick={() => control('next')} className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
                 {s.index + 1 < s.total ? 'Next question' : 'Finish & award prizes'}
               </button>
-              <button type="button" disabled={busy} onClick={() => control('finish')} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm text-zinc-800 hover:bg-white disabled:opacity-50">
+              <button type="button" disabled={busy} onClick={() => control('finish')} className="rounded-md border border-grid px-4 py-2 text-sm text-graphite/80 hover:bg-white disabled:opacity-50">
                 End early
               </button>
             </>
@@ -120,20 +120,20 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       )}
 
       {s.status === 'scheduled' && (
-        <p className="mb-4 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-600">
+        <p className="mb-4 rounded-md border border-grid bg-white p-4 text-graphite/70">
           Waiting room — the competition starts when the host presses start. Keep this page open.
         </p>
       )}
 
       {s.status === 'live' && s.current && (
         s.isHost ? (
-          <div className="mb-4 rounded-2xl border border-zinc-200 bg-white p-5">
-            <p className="mb-1 text-sm text-zinc-500">Question {s.index + 1} on students&apos; screens</p>
-            <p className="whitespace-pre-wrap text-lg font-medium text-zinc-900">{s.current.prompt}</p>
-            <p className="mt-2 text-sm text-zinc-500">{s.leaderboard.length} players · time limit {fmtSeconds(QUESTION_TIME_LIMIT_MS[s.current.difficulty])}</p>
+          <div className="mb-4 rounded-md border border-grid bg-white p-5">
+            <p className="mb-1 text-sm text-graphite/60">Question {s.index + 1} on students&apos; screens</p>
+            <p className="whitespace-pre-wrap text-lg font-medium text-graphite">{s.current.prompt}</p>
+            <p className="mt-2 text-sm text-graphite/60">{s.leaderboard.length} players · time limit {fmtSeconds(QUESTION_TIME_LIMIT_MS[s.current.difficulty])}</p>
           </div>
         ) : s.answeredCurrent && !answeredHere.has(s.index) ? (
-          <p className="mb-4 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-600">Answer received — wait for the next question.</p>
+          <p className="mb-4 rounded-md border border-grid bg-white p-4 text-graphite/70">Answer received — wait for the next question.</p>
         ) : (
           <div className="mb-4">
             <QuestionCard
@@ -150,29 +150,29 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
       )}
 
       {s.status === 'finished' && (
-        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="font-semibold text-emerald-900">Competition finished!</p>
+        <div className="mb-4 rounded-md border border-tick/50 bg-tick/5 p-4">
+          <p className="font-semibold text-tick">Competition finished!</p>
           {s.prizes.length > 0 && (
-            <p className="text-sm text-emerald-800">
+            <p className="text-sm text-tick">
               Prizes: {s.prizes.map((p) => `${s.leaderboard.find((l) => l.userId === p.userId)?.name ?? p.userId} +${p.xp} XP`).join(' · ')}
             </p>
           )}
         </div>
       )}
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4">
-        <h2 className="mb-2 font-semibold text-zinc-900">Leaderboard</h2>
-        {s.leaderboard.length === 0 && <p className="text-sm text-zinc-500">No answers yet.</p>}
-        <ol className="divide-y divide-zinc-100">
+      <section className="rounded-md border border-grid bg-white p-4">
+        <h2 className="mb-2 font-semibold text-graphite">Leaderboard</h2>
+        {s.leaderboard.length === 0 && <p className="text-sm text-graphite/60">No answers yet.</p>}
+        <ol className="divide-y divide-grid">
           {s.leaderboard.map((e) => (
             <li key={e.userId} className={`flex items-center justify-between py-2 ${e.userId === s.meId ? 'font-semibold' : ''}`}>
-              <span className="text-zinc-900">
-                <span className="mr-2 inline-block w-6 text-zinc-400">{e.rank}.</span>
+              <span className="text-graphite">
+                <span className="mr-2 inline-block w-6 text-graphite/40">{e.rank}.</span>
                 {e.name}
                 {e.userId === s.meId && ' (you)'}
               </span>
-              <span className="text-sm text-zinc-600">
-                {e.correct} correct · {fmtSeconds(e.timeMs)}
+              <span className="text-sm text-graphite/70">
+                <span className="font-math">{e.correct}</span> correct · <span className="font-math">{fmtSeconds(e.timeMs)}</span>
               </span>
             </li>
           ))}

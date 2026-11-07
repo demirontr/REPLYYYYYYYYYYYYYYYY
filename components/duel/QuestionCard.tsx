@@ -3,6 +3,7 @@
 // The explanation is only shown after the player has answered — never before.
 
 import { useEffect, useRef, useState } from 'react';
+import { Badge, Button, Card } from '@/components/ui';
 
 export type CardQuestion = {
   id: number;
@@ -14,6 +15,9 @@ export type CardQuestion = {
 
 export type AnswerFeedback = { isCorrect: boolean; correctIndex: number; explanation: string | null };
 
+/** After a timeout, the next question opens by itself after this delay (jury demo flow). */
+const AUTO_NEXT_MS = 2000;
+
 type Props = {
   question: CardQuestion;
   index: number;
@@ -24,12 +28,6 @@ type Props = {
   onAnswer: (chosenIndex: number | null, timeMs: number) => Promise<AnswerFeedback>;
   /** Called after the feedback; omit to keep the feedback on screen (live: host moves on). */
   onNext?: () => void;
-};
-
-const badge: Record<CardQuestion['difficulty'], string> = {
-  easy: 'bg-emerald-100 text-emerald-800',
-  medium: 'bg-amber-100 text-amber-800',
-  hard: 'bg-rose-100 text-rose-800',
 };
 
 export function QuestionCard({ question, index, total, limitMs, startedAt, onAnswer, onNext }: Props) {
@@ -78,33 +76,44 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
     return () => clearInterval(t);
   }, [feedback, error, start, limitMs]);
 
+  // After "Time is up", move on by itself after AUTO_NEXT_MS (the button stays for impatient players).
+  // onNext is read through a ref so parent re-renders (polling) do not restart the countdown.
+  const timedOut = Boolean(feedback) && chosen === null;
+  const onNextRef = useRef(onNext);
+  useEffect(() => {
+    onNextRef.current = onNext;
+  });
+  useEffect(() => {
+    if (!timedOut || !onNextRef.current) return;
+    const t = setTimeout(() => onNextRef.current?.(), AUTO_NEXT_MS);
+    return () => clearTimeout(t);
+  }, [timedOut]);
+
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 flex items-center justify-between text-sm text-zinc-500">
+    <Card>
+      <div className="mb-3 flex items-center justify-between text-sm text-graphite/60">
         <span>
           Question {index + 1} / {total} · {question.topic}
         </span>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge[question.difficulty]}`}>
-          {question.difficulty}
-        </span>
+        <Badge tone={question.difficulty}>{question.difficulty}</Badge>
       </div>
 
-      <div className="mb-4 h-2 overflow-hidden rounded-full bg-zinc-100">
+      <div className="mb-4 h-2 overflow-hidden rounded-full bg-paper">
         <div
-          className={`h-full transition-[width] duration-100 ${remaining < 5000 ? 'bg-rose-500' : 'bg-indigo-500'}`}
+          className={`h-full transition-[width] duration-100 ${remaining < 5000 ? 'bg-pen' : 'bg-indigo-500'}`}
           style={{ width: `${(remaining / limitMs) * 100}%` }}
         />
       </div>
 
-      <p className="mb-4 whitespace-pre-wrap text-lg font-medium text-zinc-900">{question.prompt}</p>
+      <p className="mb-4 whitespace-pre-wrap font-math text-xl text-graphite">{question.prompt}</p>
 
       <div className="grid gap-2">
         {question.choices.map((c, i) => {
-          let cls = 'border-zinc-200 hover:border-indigo-400 hover:bg-indigo-50';
+          let cls = 'border-grid hover:border-ink hover:bg-paper';
           if (feedback) {
-            if (i === feedback.correctIndex) cls = 'border-emerald-500 bg-emerald-50';
-            else if (i === chosen) cls = 'border-rose-500 bg-rose-50';
-            else cls = 'border-zinc-200 opacity-60';
+            if (i === feedback.correctIndex) cls = 'border-tick/50 bg-tick/5';
+            else if (i === chosen) cls = 'border-pen bg-pen/5';
+            else cls = 'border-grid opacity-60';
           } else if (i === chosen) cls = 'border-indigo-500 bg-indigo-50';
           return (
             <button
@@ -112,36 +121,39 @@ export function QuestionCard({ question, index, total, limitMs, startedAt, onAns
               type="button"
               disabled={locked || sending}
               onClick={() => submit(i)}
-              className={`rounded-xl border-2 px-4 py-3 text-left transition ${cls}`}
+              className={`rounded-md border-2 px-4 py-3 text-left transition ${cls}`}
             >
-              <span className="mr-2 font-semibold text-zinc-400">{String.fromCharCode(65 + i)}</span>
-              {c}
+              <span className="mr-2 font-semibold text-graphite/40">{String.fromCharCode(65 + i)}</span>
+              <span className="font-math text-lg">{c}</span>
             </button>
           );
         })}
       </div>
 
       <div className="mt-4 min-h-6 text-sm">
-        {!feedback && !error && <span className="text-zinc-500">{Math.ceil(remaining / 1000)} s left</span>}
-        {error && <span className="text-rose-600">{error}</span>}
+        {!feedback && !error && (
+          <span className="text-graphite/60">
+            <span className="font-math">{Math.ceil(remaining / 1000)}</span> s left
+          </span>
+        )}
+        {error && <span className="text-pen">{error}</span>}
         {feedback && (
           <div className="space-y-2">
-            <p className={feedback.isCorrect ? 'font-semibold text-emerald-700' : 'font-semibold text-rose-700'}>
+            <p className={feedback.isCorrect ? 'font-semibold text-tick' : 'font-semibold text-pen'}>
               {feedback.isCorrect ? 'Correct!' : chosen === null ? 'Time is up.' : 'Not quite.'}
             </p>
-            {feedback.explanation && <p className="text-zinc-600">{feedback.explanation}</p>}
+            {feedback.explanation && <p className="text-graphite/70">{feedback.explanation}</p>}
             {onNext && (
-              <button
-                type="button"
-                onClick={onNext}
-                className="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700"
-              >
-                {index + 1 < total ? 'Next question' : 'See result'}
-              </button>
+              <div className="flex items-center gap-3">
+                <Button type="button" onClick={onNext}>
+                  {index + 1 < total ? 'Next question' : 'See result'}
+                </Button>
+                {timedOut && <span className="text-graphite/60">Moving on in 2 s…</span>}
+              </div>
             )}
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
