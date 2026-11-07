@@ -33,7 +33,7 @@ const NAV = [
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const me = await getCurrentUser(); // reads cookies first, which keeps every route dynamic
   const [{ data: users }, unread] = await Promise.all([
-    supabaseAdmin().from("users").select("id,name,role").order("id"),
+    supabaseAdmin().from("users").select("id,name,role,department").order("id"),
     unreadCount(me.id),
   ]);
   return (
@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <div className="ml-auto flex items-center gap-3">
               <span className="font-math text-lg"><span className="marker">{me.xp}</span> XP</span>
               <NotificationBell userId={me.id} initial={unread} />
-              <SwitchUser users={users ?? []} currentId={me.id} hideOnTests={DEMO_MODE} />
+              <SwitchUser users={(users ?? []).filter((u) => u.department !== "Visitor" || u.id === me.id)} currentId={me.id} hideOnTests={DEMO_MODE} />
             </div>
           </div>
         </header>
