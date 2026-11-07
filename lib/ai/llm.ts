@@ -2,8 +2,8 @@
 // Uses the REST API with fetch, so no SDK package is needed.
 // Model name comes from GEMINI_MODEL so it can be changed in one place.
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
-const TIMEOUT_MS = 30_000;
+const DEFAULT_MODEL = "gemini-3.6-flash";
+const TIMEOUT_MS = 45_000;
 
 export class LlmError extends Error {
   constructor(message: string, readonly agent: string) {
@@ -48,7 +48,8 @@ async function callGemini(agent: string, system: string, prompt: string, schema:
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature, responseMimeType: "application/json", responseSchema: schema },
+      // low thinking keeps Gemini 3.x fast enough for an interactive page
+      generationConfig: { temperature, responseMimeType: "application/json", responseSchema: schema, thinkingConfig: { thinkingLevel: "low" } },
     }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });

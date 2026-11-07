@@ -13,7 +13,7 @@ import { NotificationBell } from "@/app/notifications/Bell";
 import { unreadCount } from "@/app/notifications/data";
 
 export const metadata: Metadata = {
-  title: "AI on Campus",
+  title: "UniR",
   description: "Daily practice, duels and AI study guidance for university courses.",
 };
 
@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <header className="border-b border-[#d3dce6] bg-white/95">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
             <Link href="/" className="text-lg font-bold text-ink">
-              AI on Campus <span className="font-math font-normal italic">∫</span>
+              UniR <span className="font-math font-normal italic">∫</span>
             </Link>
             <NavLinks items={NAV} />
             <div className="ml-auto flex items-center gap-3">
