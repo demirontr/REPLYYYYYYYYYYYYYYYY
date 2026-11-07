@@ -1,5 +1,5 @@
 // POST { lat, lng, sharing } — store my position. POST { sharing: false } — stop sharing.
-import { db, must, readJson, requireUser, route, HttpError } from '@/lib/duelServer';
+import { db, must, readJson, requireUser, route, setLocation, HttpError } from '@/lib/duelServer';
 
 export async function POST(req: Request) {
   return route(async () => {
@@ -16,15 +16,7 @@ export async function POST(req: Request) {
       typeof lat === 'number' && typeof lng === 'number' && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
     if (!valid) throw new HttpError(400, 'lat/lng required');
 
-    must(
-      await db()
-        .from('locations')
-        .upsert(
-          { user_id: me.id, lat, lng, sharing: true, updated_at: new Date().toISOString() },
-          { onConflict: 'user_id' },
-        )
-        .select('user_id'),
-    );
+    await setLocation(me.id, lat, lng); // stamped with the database clock
     return { ok: true, sharing: true };
   });
 }

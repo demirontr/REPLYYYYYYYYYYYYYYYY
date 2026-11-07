@@ -1,5 +1,5 @@
 // POST { accept: boolean } — the invited player accepts or declines.
-import { db, getDuel, HttpError, must, readJson, requireUser, route, toInt } from '@/lib/duelServer';
+import { db, dbNow, getDuel, HttpError, must, readJson, requireUser, route, toInt } from '@/lib/duelServer';
 import { isInviteExpired } from '@/lib/duel';
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -10,7 +10,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     if (duel.status !== 'invited') throw new HttpError(409, `Invitation is ${duel.status}`);
 
     const { accept } = await readJson<{ accept?: boolean }>(req);
-    const status = isInviteExpired(duel.created_at) ? 'expired' : accept ? 'active' : 'declined';
+    // created_at is database time, so compare against the database clock.
+    const status = isInviteExpired(duel.created_at, await dbNow()) ? 'expired' : accept ? 'active' : 'declined';
 
     const updated = must<{ id: number }[]>(
       await db().from('duels').update({ status }).eq('id', duel.id).eq('status', 'invited').select('id'),

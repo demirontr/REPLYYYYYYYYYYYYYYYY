@@ -65,6 +65,36 @@ export async function readJson<T>(req: Request): Promise<T> {
   }
 }
 
+/** PostgREST error code for "function not found" (migration 21 not applied yet). */
+const MISSING_FUNCTION = 'PGRST202';
+
+/**
+ * The database clock in ms. Duel timestamps (locations, invites) are compared on this clock,
+ * so a skewed app-server/laptop clock cannot break proximity or invite expiry.
+ * Falls back to the local clock until migrations/21_duel_clock.sql is applied.
+ */
+export async function dbNow(): Promise<number> {
+  const { data, error } = await db().rpc('db_now');
+  if (error) {
+    if (error.code === MISSING_FUNCTION) return Date.now();
+    throw new Error(error.message);
+  }
+  return new Date(data as string).getTime();
+}
+
+/** Upsert my position stamped with the database clock (falls back to the local clock before migration 21). */
+export async function setLocation(userId: number, lat: number, lng: number) {
+  const { error } = await db().rpc('set_location', { p_user: userId, p_lat: lat, p_lng: lng });
+  if (!error) return;
+  if (error.code !== MISSING_FUNCTION) throw new Error(error.message);
+  must(
+    await db()
+      .from('locations')
+      .upsert({ user_id: userId, lat, lng, sharing: true, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+      .select('user_id'),
+  );
+}
+
 export const toInt = (v: string) => {
   const n = Number(v);
   if (!Number.isInteger(n) || n <= 0) throw new HttpError(400, 'Invalid id');

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { joinDuelRoom, subscribeDuel, type DuelProgress } from '@/lib/realtime';
 import { QUESTION_TIME_LIMIT_MS } from '@/lib/duel';
-import { api, fmtSeconds, POLL_MS } from './api';
+import { api, fmtSeconds, poller, POLL_MS } from './api';
 import { QuestionCard, type AnswerFeedback, type CardQuestion } from './QuestionCard';
 
 type State = {
@@ -52,13 +52,14 @@ export function DuelPlay({ duelId }: { duelId: number }) {
   );
 
   useEffect(() => {
-    void load();
-    const unsubRow = subscribeDuel(supabase, duelId, () => void load());
+    const tick = poller(load); // skips a tick while the previous request is still running
+    tick();
+    const unsubRow = subscribeDuel(supabase, duelId, tick);
     room.current = joinDuelRoom(supabase, duelId, (p: DuelProgress) => {
       setOpponentAnswered((n) => Math.max(n, p.answered));
     });
     // Fallback polling in case realtime is not available.
-    const t = setInterval(load, POLL_MS);
+    const t = setInterval(tick, POLL_MS);
     return () => {
       clearInterval(t);
       unsubRow();

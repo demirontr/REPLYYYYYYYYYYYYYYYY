@@ -25,3 +25,15 @@ export const fmtSeconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
  * so the pages rely on polling; 1.5 s keeps duels and live rounds responsive.
  */
 export const POLL_MS = 1500;
+
+/** Wrap a loader for polling: a tick is skipped while the previous request is still running, so slow responses never pile up. */
+export function poller(load: () => Promise<unknown>): () => void {
+  let busy = false;
+  return () => {
+    if (busy) return;
+    busy = true;
+    void load().finally(() => {
+      busy = false;
+    });
+  };
+}

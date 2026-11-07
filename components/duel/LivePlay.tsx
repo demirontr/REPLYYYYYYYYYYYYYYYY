@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabaseBrowser } from '@/lib/supabase';
 import { subscribeTournament } from '@/lib/realtime';
 import { QUESTION_TIME_LIMIT_MS } from '@/lib/duel';
-import { api, fmtSeconds, POLL_MS } from './api';
+import { api, fmtSeconds, poller, POLL_MS } from './api';
 import { QuestionCard, type AnswerFeedback, type CardQuestion } from './QuestionCard';
 
 type State = {
@@ -46,12 +46,13 @@ export function LivePlay({ tournamentId }: { tournamentId: number }) {
   );
 
   useEffect(() => {
-    void load();
+    const tick = poller(load); // skips a tick while the previous request is still running
+    tick();
     const unsub = subscribeTournament(supabase, tournamentId, {
-      onTournament: () => void load(),
-      onEntry: () => void load(),
+      onTournament: tick,
+      onEntry: tick,
     });
-    const t = setInterval(load, POLL_MS);
+    const t = setInterval(tick, POLL_MS);
     return () => {
       clearInterval(t);
       unsub();

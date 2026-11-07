@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase';
 import { POLITO_CAMPUS, simulateNear, startLocationWatch, LOCATION_PUSH_INTERVAL_MS, type LocationError } from '@/lib/geo';
 import { subscribeInvites } from '@/lib/realtime';
-import { INVITE_TTL_MS, type DuelSize } from '@/lib/duel';
+import { type DuelSize } from '@/lib/duel';
 import { PageTitle } from '@/components/ui';
-import { api, POLL_MS } from './api';
+import { api, poller, POLL_MS } from './api';
 
 type Lobby = {
   me: { id: number; name: string };
   sharing: boolean;
   nearby: { id: number; name: string; elo: number; xp: number; distanceM: number }[];
-  incoming: { id: number; from: string; fromId: number; size: DuelSize; createdAt: string }[];
-  outgoing: { id: number; to: string; size: DuelSize; createdAt: string }[];
+  incoming: { id: number; from: string; fromId: number; size: DuelSize; expiresInMs: number }[];
+  outgoing: { id: number; to: string; size: DuelSize; expiresInMs: number }[];
   activeDuelId: number | null;
 };
 
@@ -28,19 +28,20 @@ const locationErrorText: Record<LocationError, string> = {
   timeout: 'Getting your location took too long.',
 };
 
-const secondsLeft = (createdAt: string) =>
-  Math.max(0, Math.ceil((INVITE_TTL_MS - (Date.now() - new Date(createdAt).getTime())) / 1000));
+/** expiresInMs comes from the server (database clock); count down locally from when we received it. */
+const secondsLeft = (expiresInMs: number, receivedAt: number) =>
+  Math.max(0, Math.ceil((expiresInMs - (Date.now() - receivedAt)) / 1000));
 
 export function DuelLobby({ meId }: { meId: number }) {
   const router = useRouter();
   const supabase = useMemo(() => supabaseBrowser(), []);
-  const [lobby, setLobby] = useState<Lobby | null>(null);
+  const [lobby, setLobby] = useState<(Lobby & { receivedAt: number }) | null>(null);
   const [mode, setMode] = useState<Mode>('off');
   const [size, setSize] = useState<DuelSize>(5);
   const [message, setMessage] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<{ id: number; name: string }[]>([]);
   const seenNearby = useRef<Set<number>>(new Set());
-  const [, tick] = useState(0);
+  const [, setClock] = useState(0); // re-render every second for invite countdowns
 
   // State is only set inside promise callbacks, so calling this from an effect is fine
   // (react-hooks/set-state-in-effect).
@@ -48,7 +49,7 @@ export function DuelLobby({ meId }: { meId: number }) {
     () =>
       api<Lobby>('/api/duel/lobby').then(
         (data) => {
-          setLobby(data);
+          setLobby({ ...data, receivedAt: Date.now() });
           if (data.activeDuelId) router.push(`/duel/${data.activeDuelId}`);
 
           // Automatic prompt for players who just came within range.
@@ -65,10 +66,11 @@ export function DuelLobby({ meId }: { meId: number }) {
 
   // Poll (fallback) + realtime invitations (instant).
   useEffect(() => {
-    void refresh();
-    const t = setInterval(refresh, POLL_MS);
-    const unsub = subscribeInvites(supabase, meId, () => void refresh());
-    const clock = setInterval(() => tick((n) => n + 1), 1000);
+    const tick = poller(refresh); // skips a tick while the previous request is still running
+    tick();
+    const t = setInterval(tick, POLL_MS);
+    const unsub = subscribeInvites(supabase, meId, tick);
+    const clock = setInterval(() => setClock((n) => n + 1), 1000);
     return () => {
       clearInterval(t);
       clearInterval(clock);
@@ -160,7 +162,7 @@ export function DuelLobby({ meId }: { meId: number }) {
       {lobby?.incoming.map((inv) => (
         <div key={inv.id} className="flex items-center justify-between rounded-md border border-tick/50 bg-tick/5 px-4 py-3">
           <span className="text-tick">
-            <strong>{inv.from}</strong> challenged you to a {inv.size}-question duel · <span className="font-math">{secondsLeft(inv.createdAt)}</span> s
+            <strong>{inv.from}</strong> challenged you to a {inv.size}-question duel · <span className="font-math">{secondsLeft(inv.expiresInMs, lobby!.receivedAt)}</span> s
           </span>
           <div className="flex gap-2">
             <button type="button" onClick={() => respond(inv.id, true)} className="rounded-md bg-tick px-3 py-1.5 text-sm font-medium text-white hover:bg-tick/90">
@@ -175,7 +177,7 @@ export function DuelLobby({ meId }: { meId: number }) {
 
       {pendingOutgoing && (
         <div className="rounded-md border border-grid bg-paper px-4 py-3 text-graphite/80">
-          Waiting for <strong>{pendingOutgoing.to}</strong> to accept… <span className="font-math">{secondsLeft(pendingOutgoing.createdAt)}</span> s
+          Waiting for <strong>{pendingOutgoing.to}</strong> to accept… <span className="font-math">{secondsLeft(pendingOutgoing.expiresInMs, lobby!.receivedAt)}</span> s
         </div>
       )}
 
