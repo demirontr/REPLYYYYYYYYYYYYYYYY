@@ -16,7 +16,7 @@ export default async function LeaderboardPage({ searchParams }: PageProps<"/lead
   const { data, error } = await query.overrideTypes<Row[], { merge: false }>();
   if (error) throw error;
 
-  const tab = (active: boolean) => `rounded-lg px-3 py-1.5 text-sm ${active ? "bg-indigo-600 text-white" : "border border-zinc-300"}`;
+  const tab = (active: boolean) => `rounded-md px-3 py-1.5 font-semibold ${active ? "bg-ink text-white" : "border border-graphite/30 bg-white hover:border-ink"}`;
   return (
     <>
       <PageTitle sub="Ranked by XP. Elo is the duel rating.">Leaderboard</PageTitle>
@@ -25,18 +25,18 @@ export default async function LeaderboardPage({ searchParams }: PageProps<"/lead
         <Link href="/leaderboard?tab=global" className={tab(global)}>Global</Link>
       </div>
       <Card className="overflow-x-auto p-0">
-        <table className="w-full text-sm">
-          <thead className="bg-zinc-50 text-left text-zinc-500">
+        <table className="w-full">
+          <thead className="border-b border-grid text-left text-graphite/60">
             <tr><th className="p-3">#</th><th className="p-3">Student</th><th className="p-3">University</th><th className="p-3 text-right">XP</th><th className="p-3 text-right">Elo</th></tr>
           </thead>
           <tbody>
             {data.map((u, i) => (
-              <tr key={u.id} className={`border-t border-zinc-100 ${u.id === me.id ? "bg-indigo-50 font-semibold" : ""}`}>
-                <td className="p-3">{i + 1}</td>
-                <td className="p-3">{u.name}<div className="text-xs font-normal text-zinc-500">{u.department}</div></td>
+              <tr key={u.id} className={`border-t border-grid ${u.id === me.id ? "bg-marker/50 font-semibold" : ""}`}>
+                <td className="p-3 font-math text-lg">{i + 1}</td>
+                <td className="p-3">{u.name}<div className="text-sm font-normal text-graphite/60">{u.department}</div></td>
                 <td className="p-3">{u.universities?.name}</td>
-                <td className="p-3 text-right">{u.xp}</td>
-                <td className="p-3 text-right">{u.elo}</td>
+                <td className="p-3 text-right font-math text-lg">{u.xp}</td>
+                <td className="p-3 text-right font-math text-lg text-graphite/70">{u.elo}</td>
               </tr>
             ))}
           </tbody>

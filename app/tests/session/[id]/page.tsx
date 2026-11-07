@@ -42,7 +42,7 @@ export default async function SessionPage({ params }: PageProps<"/tests/session/
       <PageTitle sub={<Link href="/tests" className="underline">Back to tests</Link>}>{title}: result</PageTitle>
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label="Correct" value={`${correct} / ${questions.length}`} />
-        <Stat label="XP earned" value={session.total_xp} />
+        <Stat label="XP earned" value={session.total_xp} mark />
         <Stat label="Avg. time per question" value={`${avgS.toFixed(1)} s`} />
       </div>
       <div className="grid gap-3">
@@ -50,19 +50,19 @@ export default async function SessionPage({ params }: PageProps<"/tests/session/
           const a = ansBy.get(q.id);
           return (
             <Card key={q.id}>
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-sm">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="font-semibold">Q{i + 1}</span>
                 <Badge tone={q.difficulty}>{q.difficulty}</Badge>
                 <Badge>{q.topic}</Badge>
-                <span className={a?.is_correct ? "text-emerald-700" : "text-rose-700"}>{a?.is_correct ? "Correct" : "Wrong"}</span>
-                {a && <span className="text-zinc-500">{(a.time_ms / 1000).toFixed(1)} s · +{a.xp_awarded} XP</span>}
+                <span className={`font-semibold ${a?.is_correct ? "text-tick" : "text-pen"}`}>{a?.is_correct ? "Correct" : "Wrong"}</span>
+                {a && <span className="ml-auto text-graphite/60">{(a.time_ms / 1000).toFixed(1)} s, +{a.xp_awarded} XP</span>}
               </div>
-              <p className="mb-2">{q.prompt}</p>
-              <p className="text-sm">
+              <p className="mb-2 font-math text-xl">{q.prompt}</p>
+              <p className="font-math text-lg">
                 Your answer: <b>{a?.chosen_index != null ? q.choices[a.chosen_index] : "-"}</b>
                 {!a?.is_correct && <> · Correct: <b>{q.choices[q.correct_index]}</b></>}
               </p>
-              <p className="mt-2 text-sm text-zinc-600">{q.explanation}</p>
+              <p className="mt-2 max-w-[65ch] font-math leading-relaxed text-graphite/80">{q.explanation}</p>
             </Card>
           );
         })}

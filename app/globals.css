@@ -1,5 +1,61 @@
 @import "tailwindcss";
 
+/* Identity: an Italian squared notebook (quaderno a quadretti), blue ballpoint, red correction pen.
+   indigo-* is remapped to ballpoint blue so every page (Claude 2/3 included) picks up the ink colour. */
+@theme {
+  --font-sans: "Titillium Web", system-ui, "Segoe UI", sans-serif;
+  --font-math: "STIX Two Text Variable", "STIX Two Text", Cambria, Georgia, serif;
+
+  --color-paper: #f6f8fa;
+  --color-grid: #dfe7f0;
+  --color-ink: #1d3c8f;
+  --color-graphite: #2a2e35;
+  --color-pen: #c62631;
+  --color-tick: #23784a;
+  --color-marker: #ffe869;
+
+  --color-indigo-50: #eef2fb;
+  --color-indigo-100: #dbe3f6;
+  --color-indigo-200: #b5c4ec;
+  --color-indigo-300: #8aa1de;
+  --color-indigo-400: #5574c4;
+  --color-indigo-500: #2f50ab;
+  --color-indigo-600: #1d3c8f;
+  --color-indigo-700: #142d72;
+  --color-indigo-800: #0f2257;
+  --color-indigo-900: #0b1940;
+}
+
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--color-graphite);
+  background-color: var(--color-paper);
+  /* 5 mm squares */
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* highlighter swipe behind a number */
+.marker {
+  background: linear-gradient(transparent 45%, var(--color-marker) 45%, var(--color-marker) 92%, transparent 92%);
+  padding: 0 0.15em;
+}
+
+/* the one animation: a pen stroke drawn when an answer is marked */
+.pen-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: pen 420ms ease-out forwards;
+}
+@keyframes pen {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen-stroke { animation: none; stroke-dashoffset: 0; }
 }

@@ -28,11 +28,11 @@ export default async function TestsPage() {
           return (
             <Card key={c.id} className="flex flex-wrap items-center gap-3">
               <div className="mr-auto">
-                <div className="font-semibold">{c.name}</div>
-                <div className="text-sm text-zinc-500">{c.code}</div>
+                <div className="text-lg font-semibold">{c.name}</div>
+                <div className="text-graphite/60">{c.code}</div>
               </div>
               {daily?.finished_at ? (
-                <Link href={`/tests/session/${daily.id}`} className="text-sm text-indigo-700 underline">Today&apos;s result</Link>
+                <Link href={`/tests/session/${daily.id}`} className="font-semibold text-ink underline">See today&apos;s result</Link>
               ) : (
                 <form action={startDaily.bind(null, c.id)}>
                   <Button>{daily ? "Continue today's test" : "Start today's test"}</Button>

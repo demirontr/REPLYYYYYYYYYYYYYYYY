@@ -15,7 +15,7 @@ export function SwitchUser({ users, currentId }: { users: Option[]; currentId: n
         name="uid"
         defaultValue={currentId}
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
-        className="rounded-lg border border-zinc-300 bg-white px-2 py-1 text-sm"
+        className="rounded-md border border-graphite/30 bg-white px-2 py-1"
       >
         {groups.map((g) => (
           <optgroup key={g.role} label={g.role}>

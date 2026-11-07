@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     <>
       <PageTitle sub={`${me.department ?? ""} · year ${me.year ?? "-"}`}>Hi, {me.name}</PageTitle>
       <div className="mb-6 grid gap-4 sm:grid-cols-4">
-        <Stat label="XP" value={me.xp} />
+        <Stat label="XP" value={me.xp} mark />
         <Stat label="Rank at my university" value={`#${(uni.count ?? 0) + 1}`} />
         <Stat label="Global rank" value={`#${(global.count ?? 0) + 1}`} />
         <Stat label="Duel Elo" value={me.elo} />
@@ -54,15 +54,15 @@ export default async function DashboardPage() {
             <h2 className="mb-3 font-semibold">Accuracy by topic</h2>
             {topics.map(([t, g]) => (
               <div key={t} className="mb-2">
-                <div className="flex justify-between text-sm"><span>{t}</span><span>{pct(g)}% ({g.ok}/{g.n})</span></div>
-                <div className="h-2 rounded bg-zinc-100"><div className="h-2 rounded bg-indigo-500" style={{ width: `${pct(g)}%` }} /></div>
+                <div className="flex justify-between"><span>{t}</span><span className="font-math">{pct(g)}% <span className="text-graphite/50">({g.ok}/{g.n})</span></span></div>
+                <div className="h-2.5 border border-grid bg-paper"><div className={`h-full ${pct(g) < 50 ? "bg-pen" : "bg-ink"}`} style={{ width: `${pct(g)}%` }} /></div>
               </div>
             ))}
           </Card>
           <Card>
             <h2 className="mb-3 font-semibold">Average solve time</h2>
             {levels.map(([d, g]) => (
-              <div key={d} className="mb-2 flex items-center justify-between text-sm">
+              <div key={d} className="mb-2 flex items-center justify-between">
                 <Badge tone={d}>{d}</Badge>
                 <span>{(g.ms / g.n / 1000).toFixed(1)} s · {pct(g)}% correct</span>
               </div>

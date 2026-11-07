@@ -10,6 +10,8 @@
     "test": "node --experimental-strip-types lib/xp.test.ts"
   },
   "dependencies": {
+    "@fontsource-variable/stix-two-text": "^5.3.0",
+    "@fontsource/titillium-web": "^5.3.0",
     "@supabase/supabase-js": "^2.119.0",
     "next": "16.4.5",
     "react": "19.3.0",
