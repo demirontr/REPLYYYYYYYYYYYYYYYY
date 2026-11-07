@@ -7,7 +7,7 @@ import {
   HttpError,
   readJson,
   recordAnswer,
-  requireUser,
+  requireDuelUser,
   route,
   sessionScore,
   toInt,
@@ -15,7 +15,7 @@ import {
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   return route(async () => {
-    const me = await requireUser();
+    const me = await requireDuelUser();
     const duel = await getDuel(toInt((await ctx.params).id));
     assertParticipant(duel, me.id);
     if (duel.status !== 'active') throw new HttpError(409, `Duel is ${duel.status}`);

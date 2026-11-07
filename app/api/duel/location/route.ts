@@ -1,9 +1,9 @@
 // POST { lat, lng, sharing } — store my position. POST { sharing: false } — stop sharing.
-import { db, must, readJson, requireUser, route, HttpError } from '@/lib/duelServer';
+import { db, must, readJson, requireDuelUser, route, HttpError } from '@/lib/duelServer';
 
 export async function POST(req: Request) {
   return route(async () => {
-    const me = await requireUser();
+    const me = await requireDuelUser();
     const body = await readJson<{ lat?: number; lng?: number; sharing?: boolean }>(req);
 
     if (body.sharing === false) {

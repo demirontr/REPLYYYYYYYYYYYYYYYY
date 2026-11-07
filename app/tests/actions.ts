@@ -8,6 +8,7 @@ import type { Difficulty, Question, TestSession } from "@/lib/types";
 import { wrongQuestionIds } from "./data";
 import { generateSimilarQuestions } from "@/lib/ai/similarQuestions";
 import { explainMistake } from "@/lib/ai/explainMistake";
+import { DEMO_MODE } from "@/lib/demo";
 
 const ORDER: Difficulty[] = ["easy", "medium", "hard"];
 const DAILY_MIX: Record<Difficulty, number> = { easy: 3, medium: 4, hard: 3 };
@@ -23,6 +24,24 @@ async function approvedQuestions(courseId: number) {
   return data as Pick<Question, "id" | "topic" | "difficulty">[];
 }
 
+async function dailyMix(courseId: number): Promise<number[]> {
+  const pool = shuffle(await approvedQuestions(courseId));
+  const ids = ORDER.flatMap((d) => pool.filter((q) => q.difficulty === d).slice(0, DAILY_MIX[d])).map((q) => q.id);
+  if (ids.length === 0) throw new Error("This course has no approved questions yet.");
+  return ids;
+}
+
+/** Presentation build only: a fresh 10-question test every time, no daily limit. */
+export async function startDemoTest(courseId: number) {
+  if (!DEMO_MODE) throw new Error("Only available in the presentation build");
+  const me = await getCurrentUser();
+  const { data, error } = await supabaseAdmin().from("test_sessions")
+    .insert({ user_id: me.id, course_id: courseId, kind: "retry", question_ids: await dailyMix(courseId), date: todayRome() })
+    .select("id").single();
+  if (error) throw error;
+  redirect(`/tests/session/${data.id}`);
+}
+
 /** Start (or resume) today's daily test: 10 questions, 3 easy / 4 medium / 3 hard, easy first. */
 export async function startDaily(courseId: number) {
   const me = await getCurrentUser();
@@ -34,9 +53,7 @@ export async function startDaily(courseId: number) {
   if (existing.error) throw existing.error;
   if (existing.data) redirect(`/tests/session/${existing.data.id}`);
 
-  const pool = shuffle(await approvedQuestions(courseId));
-  const ids = ORDER.flatMap((d) => pool.filter((q) => q.difficulty === d).slice(0, DAILY_MIX[d])).map((q) => q.id);
-  if (ids.length === 0) throw new Error("This course has no approved questions yet.");
+  const ids = await dailyMix(courseId);
 
   const { data, error } = await db.from("test_sessions")
     .insert({ user_id: me.id, course_id: courseId, kind: "daily", question_ids: ids, date })

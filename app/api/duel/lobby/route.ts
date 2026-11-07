@@ -1,12 +1,12 @@
 // GET — everything the duel lobby needs: nearby players, incoming invites, my pending invite, active duel.
-import { db, must, requireUser, route, userNames, type Duel } from '@/lib/duelServer';
+import { db, must, requireDuelUser, route, userNames, type Duel } from '@/lib/duelServer';
 import { NEARBY_RADIUS_M } from '@/lib/geo';
 
 type Nearby = { user_id: number; name: string; elo: number; xp: number; distance_m: number };
 
 export async function GET() {
   return route(async () => {
-    const me = await requireUser();
+    const me = await requireDuelUser();
     must(await db().rpc('expire_stale_invites'));
 
     const nearby = must<Nearby[]>(await db().rpc('nearby_users', { p_user: me.id, p_radius_m: NEARBY_RADIUS_M }));
