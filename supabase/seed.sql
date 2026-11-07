@@ -33,7 +33,7 @@ insert into questions (course_id, topic, difficulty, prompt, choices, correct_in
 (1, 'limits', 'easy', 'Compute lim_{x→0} sin(x)/x.', '["0","1","∞","It does not exist"]', 1, 'Fundamental limit: sin(x) ≈ x near 0, so the ratio tends to 1.', 'seed'),
 (1, 'limits', 'easy', 'Compute lim_{x→+∞} (3x² + 1)/(x² − 2).', '["0","1","3","+∞"]', 2, 'Numerator and denominator have the same degree: the limit is the ratio of leading coefficients, 3/1.', 'seed'),
 (1, 'limits', 'medium', 'Compute lim_{x→0} (1 − cos x)/x².', '["0","1/2","1","2"]', 1, '1 − cos x ≈ x²/2 near 0, so the ratio tends to 1/2.', 'seed'),
-(1, 'limits', 'medium', 'Compute lim_{x→+∞} (1 + 2/x)^x.', '["1","e","e²","+∞"]', 2, 'lim (1 + a/x)^x = e^a; here a = 2.', 'seed'),
+(1, 'limits', 'medium', 'Compute lim_{x→+∞} (1 + 2/x)ˣ.', '["1","e","e²","+∞"]', 2, 'lim (1 + a/x)^x = eᵃ; here a = 2.', 'seed'),
 (1, 'limits', 'hard', 'Compute lim_{x→0} (tan x − sin x)/x³.', '["0","1/6","1/2","1"]', 2, 'tan x = x + x³/3 + o(x³) and sin x = x − x³/6 + o(x³); the difference is x³/2 + o(x³).', 'seed'),
 -- continuity
 (1, 'continuity', 'easy', 'f(x) = (x² − 1)/(x − 1) for x ≠ 1. Which value of f(1) makes f continuous at 1?', '["0","1","2","No value works"]', 2, 'For x ≠ 1, f(x) = x + 1, which tends to 2 as x → 1.', 'seed'),
@@ -58,7 +58,7 @@ insert into questions (course_id, topic, difficulty, prompt, choices, correct_in
 (1, 'integrals', 'easy', '∫₀¹ x dx = ?', '["0","1/2","1","2"]', 1, '[x²/2] from 0 to 1 = 1/2.', 'seed'),
 (1, 'integrals', 'medium', '∫ x eˣ dx = ?', '["x eˣ + C","(x + 1)eˣ + C","(x − 1)eˣ + C","eˣ + C"]', 2, 'By parts with u = x, dv = eˣ dx: x eˣ − ∫ eˣ dx = (x − 1)eˣ + C.', 'seed'),
 (1, 'integrals', 'medium', '∫₀^π sin x dx = ?', '["0","1","2","π"]', 2, '[−cos x] from 0 to π = −(−1) + 1 = 2.', 'seed'),
-(1, 'integrals', 'hard', 'For which p does ∫₁^∞ 1/xᵖ dx converge?', '["p < 1","p ≤ 1","p > 1","p ≥ 1"]', 2, 'For p ≠ 1 the antiderivative is x^(1−p)/(1 − p), which stays bounded only if p > 1; for p = 1 you get ln x, which diverges.', 'seed'),
+(1, 'integrals', 'hard', 'For which p does ∫₁^∞ 1/xᵖ dx converge?', '["p < 1","p ≤ 1","p > 1","p ≥ 1"]', 2, 'For p ≠ 1 the antiderivative is x¹⁻ᵖ/(1 − p), which stays bounded only if p > 1; for p = 1 you get ln x, which diverges.', 'seed'),
 -- series
 (1, 'series', 'easy', 'lim_{n→∞} 1/n = ?', '["1","+∞","0","It does not exist"]', 2, 'The terms get arbitrarily small as n grows.', 'seed'),
 (1, 'series', 'medium', 'Σ_{n=0}^∞ (1/2)ⁿ = ?', '["1","3/2","2","+∞"]', 2, 'Geometric series with ratio 1/2: 1/(1 − 1/2) = 2.', 'seed'),
@@ -72,11 +72,11 @@ insert into questions (course_id, topic, difficulty, prompt, choices, correct_in
 (1, 'complex numbers', 'medium', '1/i = ?', '["i","−i","1","−1"]', 1, 'Multiply numerator and denominator by −i: −i/(−i²) = −i/1.', 'seed'),
 (1, 'complex numbers', 'hard', 'What is the sum of the three solutions of z³ = 1 in ℂ?', '["0","1","3","−1"]', 0, 'They are the roots of z³ − 1, whose z² coefficient is 0, so their sum is 0 (they are symmetric on the unit circle).', 'seed'),
 -- odes
-(1, 'odes', 'easy', 'General solution of y′ = y?', '["y = x + C","y = Ce^(−x)","y = Ceˣ","y = Cx"]', 2, 'Separable: dy/y = dx gives ln|y| = x + c, so y = Ceˣ.', 'seed'),
-(1, 'odes', 'medium', 'Solution of y′ = 2y with y(0) = 3?', '["2e^(3x)","3e^(2x)","3e^(x/2)","e^(2x) + 2"]', 1, 'General solution Ce^(2x); y(0) = C = 3.', 'seed'),
-(1, 'odes', 'medium', 'General solution of y″ + y = 0?', '["C₁ cos x + C₂ sin x","C₁eˣ + C₂e^(−x)","(C₁ + C₂x)eˣ","C₁ cos x"]', 0, 'Characteristic equation r² + 1 = 0 gives r = ±i.', 'seed'),
-(1, 'odes', 'hard', 'General solution of y″ − 3y′ + 2y = 0?', '["C₁e^(−x) + C₂e^(−2x)","C₁eˣ + C₂xeˣ","C₁ cos 2x + C₂ sin x","C₁eˣ + C₂e^(2x)"]', 3, 'Characteristic equation r² − 3r + 2 = 0 has roots r = 1 and r = 2.', 'seed'),
-(1, 'odes', 'hard', 'General solution of y′ + y = x?', '["Ceˣ + x − 1","Ce^(−x) + x − 1","Ce^(−x) + x + 1","Ce^(−x) + x"]', 1, 'Homogeneous part Ce^(−x); try y_p = ax + b: a + ax + b = x gives a = 1, b = −1.', 'seed');
+(1, 'odes', 'easy', 'General solution of y′ = y?', '["y = x + C","y = Ce⁻ˣ","y = Ceˣ","y = Cx"]', 2, 'Separable: dy/y = dx gives ln|y| = x + c, so y = Ceˣ.', 'seed'),
+(1, 'odes', 'medium', 'Solution of y′ = 2y with y(0) = 3?', '["2e³ˣ","3e²ˣ","3e^(x/2)","e²ˣ + 2"]', 1, 'General solution Ce²ˣ; y(0) = C = 3.', 'seed'),
+(1, 'odes', 'medium', 'General solution of y″ + y = 0?', '["C₁ cos x + C₂ sin x","C₁eˣ + C₂e⁻ˣ","(C₁ + C₂x)eˣ","C₁ cos x"]', 0, 'Characteristic equation r² + 1 = 0 gives r = ±i.', 'seed'),
+(1, 'odes', 'hard', 'General solution of y″ − 3y′ + 2y = 0?', '["C₁e⁻ˣ + C₂e⁻²ˣ","C₁eˣ + C₂xeˣ","C₁ cos 2x + C₂ sin x","C₁eˣ + C₂e²ˣ"]', 3, 'Characteristic equation r² − 3r + 2 = 0 has roots r = 1 and r = 2.', 'seed'),
+(1, 'odes', 'hard', 'General solution of y′ + y = x?', '["Ceˣ + x − 1","Ce⁻ˣ + x − 1","Ce⁻ˣ + x + 1","Ce⁻ˣ + x"]', 1, 'Homogeneous part Ce⁻ˣ; try y_p = ax + b: a + ax + b = x gives a = 1, b = −1.', 'seed');
 
 -- explicit ids above: move identity sequences past them
 select setval(pg_get_serial_sequence('universities', 'id'), (select max(id) from universities));
